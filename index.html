@@ -3,52 +3,72 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap"
+      rel="stylesheet"
+    />
     <title>Login Page</title>
+    <link rel="Stylesheet" href="CSS/style.css" />
   </head>
   <body>
     <div class="login-container">
-      <h2>Login</h2>
+      <h1>Login</h1>
       <form action="mycode.php" method="POST">
-        <div class="user-credentials">
-          <label for="username"
-            >Email
-            <input
-              type="email"
-              name="email"
-              id="email"
-              placeholder="Type your email"
-              required
-            />
-          </label>
-        </div>
+        <label for="email"
+          >Email
+          <input
+            type="email"
+            name="email"
+            id="email"
+            placeholder="Enter your email"
+            required
+          />
+        </label>
 
-        <div class="user-credentials">
-          <label for="password"
-            >Password
-            <input
-              id="password"
-              name="password"
-              type="password"
-              placeholder="Type your password"
-              required
-            />
-          </label>
-        </div>
-        <div class="forgot-password">
-          <label>
-            <input type="checkbox" name="remember" />Remember me
+        <label for="password"
+          >Password
+          <input
+            id="password"
+            name="password"
+            type="password"
+            placeholder="Enter your password"
+            required
+          />
+        </label>
+
+        <div class="row">
+          <label class="remember-me">
+            <input type="checkbox" name="remember" id="remember" />Remember me
             <a href="/forgot-password">Forgot password? </a>
           </label>
         </div>
-        <div class="sign-in">
-          <button type="submit">Sign in</button>
-          <p>or continue with</p>
-        </div>
-        <div class="sign-up">
-          <p>Don't have an account?</p>
-          <a href="/sign-up-page">Sign up </a>
-        </div>
+        <button type="submit" class="sign-in-btn">Sign in</button>
       </form>
+
+      <p class="divider">or continue with</p>
+
+      <div class="social-row">
+        <div class="social-icon">
+          <img src="img/google-color.svg" alt="google-icon" />
+        </div>
+
+        <div class="social-icon">
+          <img src="img/facebook-color.svg" alt="facebook-icon" />
+        </div>
+
+        <div>
+          <img src="img/github-142.svg" alt="github-icon" />
+        </div>
+      </div>
+
+      <p class="sign-up-text">
+        Don't have an account?
+        <a class="sign-up-link" href="/sign-up-page">Sign up </a>
+      </p>
     </div>
+
+    <p class="footer-note">Powered by TimSol Technologies</p>
   </body>
 </html>
