@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login Page</title>
+  </head>
+  <body>
+    <div class="login-container">
+      <h2>Login</h2>
+      <form action="mycode.php" method="POST">
+        <div class="user-credentials">
+          <label for="username"
+            >Email
+            <input
+              type="email"
+              name="email"
+              id="email"
+              placeholder="Type your email"
+              required
+            />
+          </label>
+        </div>
+
+        <div class="user-credentials">
+          <label for="password"
+            >Password
+            <input
+              id="password"
+              name="password"
+              type="password"
+              placeholder="Type your password"
+              required
+            />
+          </label>
+        </div>
+        <div class="forgot-password">
+          <label>
+            <input type="checkbox" name="remember" />Remember me
+            <a href="/forgot-password">Forgot password? </a>
+          </label>
+        </div>
+        <div class="sign-in">
+          <button type="submit">Sign in</button>
+          <p>or continue with</p>
+        </div>
+        <div class="sign-up">
+          <p>Don't have an account?</p>
+          <a href="/sign-up-page">Sign up </a>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>
