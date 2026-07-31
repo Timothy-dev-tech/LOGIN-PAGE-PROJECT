@@ -19,6 +19,7 @@
         <label for="email"
           >Email
           <input
+            class="email"
             type="email"
             name="email"
             id="email"
@@ -30,6 +31,7 @@
         <label for="password"
           >Password
           <input
+            class="password"
             id="password"
             name="password"
             type="password"
@@ -40,8 +42,15 @@
 
         <div class="row">
           <label class="remember-me">
-            <input type="checkbox" name="remember" id="remember" />Remember me
-            <a href="/forgot-password">Forgot password? </a>
+            <input
+              class="remember-me-checkbox"
+              type="checkbox"
+              name="remember"
+              id="remember"
+            />Remember me
+            <a class="forgot-password" href="/forgot-password"
+              >Forgot password?
+            </a>
           </label>
         </div>
         <button type="submit" class="sign-in-btn">Sign in</button>
@@ -58,7 +67,7 @@
           <img src="img/facebook-color.svg" alt="facebook-icon" />
         </div>
 
-        <div>
+        <div class="social-icon">
           <img src="img/github-142.svg" alt="github-icon" />
         </div>
       </div>
@@ -67,8 +76,9 @@
         Don't have an account?
         <a class="sign-up-link" href="/sign-up-page">Sign up </a>
       </p>
+      <p class="footer-note">
+        &copy; 2026 TimSol Technologies. All rights reserved.
+      </p>
     </div>
-
-    <p class="footer-note">Powered by TimSol Technologies</p>
   </body>
 </html>
