@@ -2,7 +2,7 @@
 
 A login interface built with HTML/CSS.
 
-**Live Demo:**  GitHub Pages link here
+**Live Demo:** [ GitHub Pages link here](https://timothy-dev-tech.github.io/LOGIN-PAGE-PROJECT/)
 
 ## Overview
 This project is part of my frontend development journey with a strong focus on clean design.
