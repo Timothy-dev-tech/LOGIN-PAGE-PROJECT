@@ -30,14 +30,24 @@
 
         <label for="password"
           >Password
-          <input
-            class="password"
-            id="password"
-            name="password"
-            type="password"
-            placeholder="Enter your password"
-            required
-          />
+          <div class="password-wrapper">
+            <input
+              class="password"
+              id="password"
+              name="password"
+              type="password"
+              placeholder="Enter your password"
+              required
+            />
+          </div>
+          <label class="show-password-label">
+            <input
+              type="checkbox"
+              class="password-checkbox"
+              id="passwordToggle"
+            />
+            Show password
+          </label>
         </label>
 
         <div class="row">
@@ -48,11 +58,10 @@
               name="remember"
               id="remember"
             />Remember me
-            </label>
-            <a class="forgot-password" href="/forgot-password"
-              >Forgot password?
-            </a>
-          
+          </label>
+          <a class="forgot-password" href="/forgot-password"
+            >Forgot password?
+          </a>
         </div>
         <button type="submit" class="sign-in-btn">Sign in</button>
       </form>
@@ -81,5 +90,6 @@
         &copy; 2026 TimSol Technologies. All rights reserved.
       </p>
     </div>
+    <script src="JS/index.js"></script>
   </body>
 </html>

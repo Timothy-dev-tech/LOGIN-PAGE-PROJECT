@@ -167,6 +167,27 @@ input::placeholder{
     margin-top: 24px;
     
 }
+
+.show-password-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  color: #4A4A4A;
+  margin-top: 5px;
+  margin-bottom: 20px;
+  
+  cursor: pointer;
+}
+
+.password-checkbox{
+  width: 14px;
+  height: 14px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
 /* Responsive */
 
 @media (max-width: 400px){
