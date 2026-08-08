@@ -15,7 +15,7 @@
   <body>
     <div class="login-container">
       <h1>Login</h1>
-      <form action="mycode.php" method="POST">
+      <form action="mycode.php" method="POST" id="loginForm">
         <label for="email"
           >Email
           <input
@@ -41,6 +41,7 @@
               required
             />
           </div>
+          <span id="passwordError" class="error-message"></span>
           <label class="show-password-label">
             <input
               type="checkbox"
