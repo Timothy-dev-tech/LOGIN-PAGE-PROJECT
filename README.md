@@ -28,6 +28,8 @@ This project is part of my frontend development journey with a strong focus on c
 -  Wire up form validation
 -  Connect to backend auth endpoint
 -  Add dark/light theme toggle
+##Preview
+<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/60f20313-528d-48ef-b28a-69e204c9225e" />
 
 ## License
 
