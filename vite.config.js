@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   server: {
@@ -8,5 +8,9 @@ export default defineConfig({
     proxy: {
       '/api': 'http://localhost:4000',
     },
+  },
+  // Only run the frontend unit tests from here. The server will have its own.
+  test: {
+    include: ['src/**/*.test.ts'],
   },
 });

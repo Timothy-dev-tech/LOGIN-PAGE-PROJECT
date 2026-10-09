@@ -1,3 +1,5 @@
+import { validateEmail, validateLoginPassword } from './validators';
+
 const passwordToggle = document.getElementById(
   'passwordToggle',
 ) as HTMLInputElement;
@@ -16,27 +18,14 @@ const passwordError = document.getElementById(
 
 loginForm.addEventListener('submit', (e) => {
   e.preventDefault();
-  let isValid = true;
-  const emailValue = emailInput.value;
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  if (!emailRegex.test(emailValue)) {
-    isValid = false;
-    emailError.textContent = 'Please enter a valid email';
-  } else {
-    emailError.textContent = '';
-  }
+  const emailResult = validateEmail(emailInput.value);
+  const passwordResult = validateLoginPassword(passwordInput.value);
 
-  const passwordValue = passwordInput.value;
+  emailError.textContent = emailResult.valid ? '' : emailResult.message;
+  passwordError.textContent = passwordResult.valid ? '' : passwordResult.message;
 
-  if (passwordValue.length < 8) {
-    isValid = false;
-    passwordError.textContent = 'Password must be at least 8 characters';
-  } else {
-    passwordError.textContent = '';
-  }
-
-  if (isValid) {
+  if (emailResult.valid && passwordResult.valid) {
     console.log('Form is valid, submitting...');
   }
 });
