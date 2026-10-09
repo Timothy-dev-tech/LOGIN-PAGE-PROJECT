@@ -1,14 +1,18 @@
-const passwordToggle = document.getElementById('passwordToggle');
-const passwordInput = document.getElementById('password');
+const passwordToggle = document.getElementById(
+  'passwordToggle',
+) as HTMLInputElement;
+const passwordInput = document.getElementById('password') as HTMLInputElement;
 
 passwordToggle.addEventListener('change', () => {
   passwordInput.type = passwordToggle.checked ? 'text' : 'password';
 });
 
-const loginForm = document.getElementById('loginForm');
-const emailInput = document.getElementById('email');
-const emailError = document.getElementById('emailError');
-const passwordError = document.getElementById('passwordError');
+const loginForm = document.getElementById('loginForm') as HTMLFormElement;
+const emailInput = document.getElementById('email') as HTMLInputElement;
+const emailError = document.getElementById('emailError') as HTMLSpanElement;
+const passwordError = document.getElementById(
+  'passwordError',
+) as HTMLSpanElement;
 
 loginForm.addEventListener('submit', (e) => {
   e.preventDefault();
