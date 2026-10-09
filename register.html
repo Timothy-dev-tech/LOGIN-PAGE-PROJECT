@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Create an account." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap"
+      rel="stylesheet"
+    />
+    <title>Create account</title>
+    <link rel="stylesheet" href="/src/css/style.css" />
+  </head>
+  <body>
+    <main class="login-container">
+      <div id="registerView">
+        <h1>Create account</h1>
+        <form id="registerForm" method="post" novalidate>
+          <div class="field">
+            <label for="fullName">Full name</label>
+            <input
+              id="fullName"
+              name="name"
+              type="text"
+              autocomplete="name"
+              placeholder="Enter your full name"
+              required
+              aria-describedby="fullNameError"
+            />
+            <span id="fullNameError" class="error-message" aria-live="polite"></span>
+          </div>
+
+          <div class="field">
+            <label for="email">Email</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              placeholder="Enter your email"
+              required
+              aria-describedby="emailError"
+            />
+            <span id="emailError" class="error-message" aria-live="polite"></span>
+          </div>
+
+          <div class="field">
+            <label for="password">Password</label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autocomplete="new-password"
+              placeholder="Create a password"
+              required
+              aria-describedby="passwordRules passwordError"
+            />
+            <ul id="passwordRules" class="rules">
+              <li data-rule="minLength">
+                At least 8 characters<span class="visually-hidden"></span>
+              </li>
+              <li data-rule="hasLetterAndNumber">
+                A letter and a number<span class="visually-hidden"></span>
+              </li>
+              <li data-rule="withinMaxBytes">
+                No more than 72 bytes<span class="visually-hidden"></span>
+              </li>
+            </ul>
+            <span id="passwordError" class="error-message" aria-live="polite"></span>
+          </div>
+
+          <div class="field">
+            <label for="confirmPassword">Confirm password</label>
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
+              type="password"
+              autocomplete="new-password"
+              placeholder="Repeat your password"
+              required
+              aria-describedby="confirmPasswordError"
+            />
+            <span id="confirmPasswordError" class="error-message" aria-live="polite"></span>
+          </div>
+
+          <label class="show-password-label">
+            <input type="checkbox" class="password-checkbox" id="passwordToggle" />
+            Show passwords
+          </label>
+
+          <div class="field">
+            <label class="check-label">
+              <input
+                type="checkbox"
+                class="password-checkbox"
+                id="terms"
+                name="terms"
+                aria-describedby="termsError"
+              />
+              I agree to the Terms and Privacy note
+            </label>
+            <span id="termsError" class="error-message" aria-live="polite"></span>
+          </div>
+
+          <button type="submit" class="sign-in-btn">Create account</button>
+        </form>
+
+        <p class="sign-up-text">
+          Already have an account?
+          <a class="sign-up-link" href="/">Sign in</a>
+        </p>
+      </div>
+
+      <section id="success" class="success" aria-labelledby="successTitle" hidden>
+        <h2 id="successTitle" tabindex="-1">Account created</h2>
+        <p>
+          Welcome, <span id="successName"></span>. Your account was created
+          successfully, and you can now sign in.
+        </p>
+        <a class="button-link" href="/">Continue to sign in</a>
+      </section>
+
+      <p class="footer-note">
+        &copy; 2026 TimSol Technologies. All rights reserved.
+      </p>
+    </main>
+    <script type="module" src="/src/ts/register.ts"></script>
+  </body>
+</html>

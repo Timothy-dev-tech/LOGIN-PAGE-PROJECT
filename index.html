@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Sign in to your account." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -10,46 +11,51 @@
       rel="stylesheet"
     />
     <title>Login Page</title>
-    <link rel="Stylesheet" href="/src/css/style.css" />
+    <link rel="stylesheet" href="/src/css/style.css" />
   </head>
   <body>
-    <div class="login-container">
+    <main class="login-container">
       <h1>Login</h1>
-      <form action="mycode.php" method="POST" id="loginForm">
-        <label for="email"
-          >Email
+      <form id="loginForm" method="post" novalidate>
+        <div class="field">
+          <label for="email">Email</label>
           <input
-            class="email"
-            type="email"
-            name="email"
             id="email"
+            name="email"
+            type="email"
+            autocomplete="email"
             placeholder="Enter your email"
             required
+            aria-describedby="emailError"
           />
-          <span id="emailError" class="error-message"></span>
-        </label>
+          <span id="emailError" class="error-message" aria-live="polite"></span>
+        </div>
 
-        <label for="password"
-          >Password
-          <div class="password-wrapper">
-            <input
-              class="password"
-              id="password"
-              name="password"
-              type="password"
-              placeholder="Enter your password"
-              required
-            />
-          </div>
-          <span id="passwordError" class="error-message"></span>
-          <label class="show-password-label">
-            <input
-              type="checkbox"
-              class="password-checkbox"
-              id="passwordToggle"
-            />
-            Show password
-          </label>
+        <div class="field">
+          <label for="password">Password</label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            autocomplete="current-password"
+            placeholder="Enter your password"
+            required
+            aria-describedby="passwordError"
+          />
+          <span
+            id="passwordError"
+            class="error-message"
+            aria-live="polite"
+          ></span>
+        </div>
+
+        <label class="show-password-label">
+          <input
+            type="checkbox"
+            class="password-checkbox"
+            id="passwordToggle"
+          />
+          Show password
         </label>
 
         <div class="row">
@@ -59,39 +65,22 @@
               type="checkbox"
               name="remember"
               id="remember"
-            />Remember me
+            />
+            Remember me
           </label>
-          <a class="forgot-password" href="/forgot-password"
-            >Forgot password?
-          </a>
         </div>
+
         <button type="submit" class="sign-in-btn">Sign in</button>
       </form>
 
-      <p class="divider">or continue with</p>
-
-      <div class="social-row">
-        <div class="social-icon">
-          <img src="/src/img/google-color.svg" alt="google-icon" />
-        </div>
-
-        <div class="social-icon">
-          <img src="/src/img/facebook-color.svg" alt="facebook-icon" />
-        </div>
-
-        <div class="social-icon">
-          <img src="/src/img/github-142.svg" alt="github-icon" />
-        </div>
-      </div>
-
       <p class="sign-up-text">
         Don't have an account?
-        <a class="sign-up-link" href="/sign-up-page">Sign up </a>
+        <a class="sign-up-link" href="/register.html">Create one</a>
       </p>
       <p class="footer-note">
         &copy; 2026 TimSol Technologies. All rights reserved.
       </p>
-    </div>
-    <script type="module" src="/src/ts/index.ts"></script>
+    </main>
+    <script type="module" src="/src/ts/login.ts"></script>
   </body>
 </html>
