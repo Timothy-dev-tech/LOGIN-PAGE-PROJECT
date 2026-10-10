@@ -1,5 +1,7 @@
 import { byId } from './dom';
 import { applyResult, setupPasswordToggle, watchField } from './form-ui';
+import { initThemeToggle } from './theme';
+initThemeToggle(byId('themeToggle', HTMLButtonElement));
 import {
   getPasswordRules,
   validateConfirmPassword,

@@ -1,6 +1,8 @@
 import { byId } from './dom';
 import { applyResult, setupPasswordToggle, watchField } from './form-ui';
+import { initThemeToggle } from './theme';
 import { validateEmail, validateLoginPassword } from './validators';
+initThemeToggle(byId('themeToggle', HTMLButtonElement));
 
 const form = byId('loginForm', HTMLFormElement);
 const email = byId('email', HTMLInputElement);
