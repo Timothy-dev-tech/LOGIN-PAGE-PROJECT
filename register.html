@@ -30,11 +30,8 @@
   </head>
   <body>
     <div class="shell">
-      <header class="brand">
-        <a class="brand-link" href="/">
-          <img class="brand-logo" src="/src/img/preview.webp" alt="" width="510" height="346" />
-          <span class="brand-name"><span>Tim<span class="brand-name-accent">Sol</span></span><span class="brand-sub">Technologies</span></span>
-        </a>
+      <header class="backdrop">
+        <div class="brand" role="img" aria-label="TimSol Technologies"></div>
       </header>
 
       <button id="themeToggle" class="theme-toggle" type="button" aria-pressed="false">
@@ -51,65 +48,61 @@
       </button>
 
       <main class="main">
-        <div class="card card--wide">
+        <div class="card">
           <div id="registerView">
             <h1>Create account</h1>
             <form id="registerForm" method="post" novalidate>
-              <div class="field-row">
-                <div class="field">
-                  <label for="fullName">Full name</label>
-                  <input
-                    id="fullName"
-                    name="name"
-                    type="text"
-                    autocomplete="name"
-                    placeholder="Enter your full name"
-                    required
-                    aria-describedby="fullNameError"
-                  />
-                  <span id="fullNameError" class="error-message" aria-live="polite"></span>
-                </div>
-                <div class="field">
-                  <label for="email">Email</label>
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    autocomplete="email"
-                    placeholder="Enter your email"
-                    required
-                    aria-describedby="emailError"
-                  />
-                  <span id="emailError" class="error-message" aria-live="polite"></span>
-                </div>
+              <div class="field">
+                <label for="fullName">Full name</label>
+                <input
+                  id="fullName"
+                  name="name"
+                  type="text"
+                  autocomplete="name"
+                  placeholder="Enter your full name"
+                  required
+                  aria-describedby="fullNameError"
+                />
+                <span id="fullNameError" class="error-message" aria-live="polite"></span>
               </div>
-              <div class="field-row">
-                <div class="field">
-                  <label for="password">Password</label>
-                  <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    autocomplete="new-password"
-                    placeholder="Create a password"
-                    required
-                    aria-describedby="passwordRules passwordError"
-                  />
-                  <span id="passwordError" class="error-message" aria-live="polite"></span>
-                </div>
-                <div class="field">
-                  <label for="confirmPassword">Confirm password</label>
-                  <input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type="password"
-                    autocomplete="new-password"
-                    placeholder="Repeat your password"
-                    required
-                    aria-describedby="confirmPasswordError"
-                  />
-                  <span id="confirmPasswordError" class="error-message" aria-live="polite"></span>
-                </div>
+              <div class="field">
+                <label for="email">Email</label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autocomplete="email"
+                  placeholder="Enter your email"
+                  required
+                  aria-describedby="emailError"
+                />
+                <span id="emailError" class="error-message" aria-live="polite"></span>
+              </div>
+              <div class="field">
+                <label for="password">Password</label>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autocomplete="new-password"
+                  placeholder="Create a password"
+                  required
+                  aria-describedby="passwordRules passwordError"
+                />
+                <span id="passwordError" class="error-message" aria-live="polite"></span>
+              </div>
+              <div class="field">
+                <label for="confirmPassword">Confirm password</label>
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  autocomplete="new-password"
+                  placeholder="Repeat your password"
+                  required
+                  aria-describedby="confirmPasswordError"
+                />
+                <span id="confirmPasswordError" class="error-message" aria-live="polite"></span>
               </div>
               <ul id="passwordRules" class="rules">
                 <li data-rule="minLength">
@@ -123,25 +116,23 @@
                 </li>
               </ul>
 
-              <div class="check-row">
-                <label class="show-password-label">
-                  <input type="checkbox" class="password-checkbox" id="passwordToggle" />
-                  Show passwords
-                </label>
+              <label class="show-password-label">
+                <input type="checkbox" class="password-checkbox" id="passwordToggle" />
+                Show passwords
+              </label>
 
-                <div class="field">
-                  <label class="check-label">
-                    <input
-                      type="checkbox"
-                      class="password-checkbox"
-                      id="terms"
-                      name="terms"
-                      aria-describedby="termsError"
-                    />
-                    I agree to the Terms and Privacy note
-                  </label>
-                  <span id="termsError" class="error-message" aria-live="polite"></span>
-                </div>
+              <div class="field">
+                <label class="check-label">
+                  <input
+                    type="checkbox"
+                    class="password-checkbox"
+                    id="terms"
+                    name="terms"
+                    aria-describedby="termsError"
+                  />
+                  I agree to the Terms and Privacy note
+                </label>
+                <span id="termsError" class="error-message" aria-live="polite"></span>
               </div>
 
               <button type="submit" class="sign-in-btn">Create account</button>
