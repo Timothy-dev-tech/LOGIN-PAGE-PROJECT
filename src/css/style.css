@@ -5,159 +5,196 @@
 }
 
 /* ---------- Theme tokens ----------
-   Light is the default. The dark values replace them when <html data-theme="dark">. */
+   The page background is always the TimSol brand colour. The theme only changes the
+   card that floats on top of it. Light is the default; dark values replace them
+   when <html data-theme="dark">. */
 :root{
     color-scheme: light;
-    --bg: #FAFAFA;
-    --field: #FFFFFF;
-    --border-strong: #8A8178;
-    --text: #1A1613;
-    --muted: #5F554D;
-    --placeholder: #6B625B;
-    --link: #A84F17;
-    --focus: #A84F17;
+
+    /* Card (theme-dependent) */
+    --surface: #FFFFFF;
+    --card-border: #D5DCEA;
+    --field: #F4F7FC;
+    --border-strong: #6A7590;
+    --text: #0B0F1A;
+    --muted: #4A546B;
+    --placeholder: #5C667D;
+    --link: #0A58C8;
+    --focus: #0A58C8;
     --error: #B3261E;
     --success: #1B6E3C;
 
-    /* Brand colours stay the same in both themes */
-    --accent: #E08A45;
-    --accent-hover: #C86E2E;
-    --on-accent: #14100D;
-    --brand-bg: #14100D;
-    --brand-text: #F4EEE8;
-    --brand-muted: #B3A59A;
+    /* Brand (same in both themes) */
+    --brand-bg: #05070D;
+    --brand-line: rgba(234, 240, 250, 0.05);
+    --brand-text: #EAF0FA;
+    --brand-muted: #A3ADC4;
+    --brand-focus: #5AB0FF;
+    --accent: #1390F1;      /* brand blue, sampled from the logo */
+    --btn: #0B63E0;         /* button fill: white text on it is 5.4:1 */
+    --btn-hover: #0950B8;
+    --on-btn: #FFFFFF;
 
     --font-display: 'Space Grotesk', system-ui, sans-serif;
     --font-body: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 :root[data-theme="dark"]{
     color-scheme: dark;
-    --bg: #1B1613;
-    --field: #120E0B;
-    --border-strong: #7A6B60;
-    --text: #F4EEE8;
-    --muted: #A89A90;
-    --placeholder: #9A8D83;
-    --link: #E9A26A;
-    --focus: #F0A066;
+    --surface: #0E1220;
+    --card-border: #232A3D;
+    --field: #070A12;
+    --border-strong: #8791AB;
+    --text: #EAF0FA;
+    --muted: #A3ADC4;
+    --placeholder: #98A3BB;
+    --link: #5AB0FF;
+    --focus: #5AB0FF;
     --error: #FF9E94;
     --success: #7ED6A0;
 }
 
 body{
-    background: var(--bg);
+    background-color: var(--brand-bg);
+    /* faint 1px grid, echoing the portfolio site */
+    background-image:
+        linear-gradient(var(--brand-line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--brand-line) 1px, transparent 1px);
+    background-size: 3rem 3rem;
     color: var(--text);
     font-family: var(--font-body);
     font-size: 1rem;
-    line-height: 1.5;
+    line-height: 1.4;
 }
 
-/* ---------- Page layout: one column on phones, two columns from 56rem ---------- */
+/* ---------- Layout ----------
+   Phones: brand row on top, card below. From 56rem: brand on the left, card on the right.
+   The shell is exactly one screen tall; on a very short screen the page itself scrolls. */
 .shell{
     position: relative;
     min-height: 100vh;
     min-height: 100dvh;
     display: grid;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: auto 1fr auto;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem 0.375rem;
 }
 .brand{
-    padding: 1.25rem 1rem 0;
+    padding-right: 3.5rem; /* room for the theme toggle */
 }
 .brand-link{
     display: inline-flex;
     align-items: center;
-    gap: 0.625rem;
-    padding: 0.25rem 0;
-    font-family: var(--font-display);
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--text);
+    gap: 0.75rem;
+    color: var(--brand-text);
     text-decoration: none;
 }
-.brand-mark{
-    width: 1.1rem;
-    height: 1.1rem;
-    border-radius: 0.25rem;
-    background: var(--accent);
+.brand-logo{
+    display: block;
+    width: auto;
+    height: 2.25rem;
 }
-.brand-tagline,
-.brand-key{
-    display: none;
+.brand-name{
+    display: flex;
+    flex-direction: column;
+    font-family: var(--font-display);
+    font-size: 1.375rem;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+.brand-name-accent{
+    color: var(--accent);
+}
+.brand-sub{
+    margin-top: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    color: var(--brand-muted);
 }
 .main{
     display: flex;
-    flex-direction: column;
     align-items: center;
-    padding: 1.5rem 1rem 2rem;
+    justify-content: center;
+    min-height: 0;
 }
 .card{
     width: 100%;
     max-width: 26rem;
+    padding: 1rem;
+    background: var(--surface);
+    border: 1px solid var(--card-border);
+    border-radius: 1rem;
+}
+.card--wide{
+    max-width: 38rem;
 }
 .card h1{
+    margin-bottom: 0.5rem;
     font-family: var(--font-display);
-    font-size: 1.875rem;
+    font-size: 1.625rem;
     font-weight: 600;
     line-height: 1.15;
     letter-spacing: -0.01em;
-    margin-bottom: 1.75rem;
+}
+.footer-note{
+    font-size: 0.75rem;
+    text-align: center;
+    color: var(--brand-muted);
 }
 
 @media (min-width: 56rem){
     .shell{
-        grid-template-columns: minmax(22rem, 5fr) 7fr;
-        grid-template-rows: 1fr;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 40rem);
+        grid-template-rows: 1fr auto;
+        gap: 1rem 2rem;
+        padding: 2rem 3rem 1.25rem;
     }
     .brand{
-        position: relative;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        padding: 2.5rem;
-        background: var(--brand-bg);
-        color: var(--brand-text);
+        grid-row: 1;
+        grid-column: 1;
+        align-self: center;
+        padding-right: 0;
     }
     .brand-link{
-        color: var(--brand-text);
-        align-self: flex-start;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.25rem;
     }
-    .brand-tagline{
-        display: block;
-        position: relative;
-        z-index: 1;
-        max-width: 14ch;
-        margin-bottom: 4rem;
-        font-family: var(--font-display);
-        font-size: clamp(2.25rem, 3.6vw, 3.5rem);
-        font-weight: 600;
-        line-height: 1.05;
-        letter-spacing: -0.02em;
-        color: var(--brand-text);
+    .brand-logo{
+        width: 5rem;
+        height: 5rem;
     }
-    .brand-key{
-        display: block;
-        position: absolute;
-        top: -1.5rem;
-        right: -4rem;
-        width: 24rem;
-        height: auto;
-        fill: none;
-        stroke: var(--accent);
-        stroke-width: 1.2;
-        stroke-linejoin: round;
-        opacity: 0.35;
+    .brand-name{
+        font-size: clamp(2.5rem, 4.2vw, 3.75rem);
+    }
+    .brand-sub{
+        margin-top: 0.625rem;
+        font-size: 0.875rem;
     }
     .main{
-        justify-content: center;
-        padding: 4rem 2rem;
+        grid-row: 1;
+        grid-column: 2;
+    }
+    .card{
+        padding: 2rem;
+    }
+    .card h1{
+        margin-bottom: 1rem;
+        font-size: 1.875rem;
+    }
+    .footer-note{
+        grid-row: 2;
+        grid-column: 1 / -1;
+        text-align: left;
     }
 }
 
-/* ---------- Theme toggle ---------- */
+/* ---------- Theme toggle (sits on the brand backdrop, so it uses brand colours) ---------- */
 .theme-toggle{
     position: absolute;
-    top: 1rem;
+    top: 0.5rem;
     right: 1rem;
     z-index: 2;
     display: grid;
@@ -165,13 +202,16 @@ body{
     width: 2.75rem;
     height: 2.75rem;
     background: transparent;
-    color: var(--text);
-    border: 1px solid var(--border-strong);
+    color: var(--brand-text);
+    border: 1px solid #8791AB;
     border-radius: 0.5rem;
     cursor: pointer;
 }
 .theme-toggle:hover{
-    background: var(--field);
+    background: rgba(234, 240, 250, 0.1);
+}
+.theme-toggle:focus-visible{
+    outline-color: var(--brand-focus);
 }
 .theme-toggle svg{
     width: 1.25rem;
@@ -186,23 +226,29 @@ body{
 :root[data-theme="dark"] .icon-sun{
     display: none;
 }
+@media (min-width: 56rem){
+    .theme-toggle{
+        top: 2rem;
+        right: 3rem;
+    }
+}
 
 /* ---------- Forms ---------- */
 label{
     display: block;
-    margin-bottom: 0.375rem;
-    font-size: 0.9375rem;
+    margin-bottom: 0.25rem;
+    font-size: 0.875rem;
     font-weight: 600;
 }
 .field{
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.25rem;
+    min-width: 0;
 }
 .field input:not([type="checkbox"]){
     display: block;
     width: 100%;
-    min-height: 2.75rem;
-    padding: 0.625rem 0.75rem;
-    margin-bottom: 0.25rem;
+    min-height: 2.5rem;
+    padding: 0.5rem 0.75rem;
     background: var(--field);
     color: var(--text);
     border: 1px solid var(--border-strong);
@@ -217,16 +263,17 @@ input[aria-invalid="true"]{
 }
 .error-message{
     display: block;
-    min-height: 1.25rem; /* reserve space so the page does not jump when an error appears */
-    margin-top: 0.25rem;
-    font-size: 0.8125rem;
+    min-height: 1.125rem; /* reserve space so the card does not jump when an error appears */
+    margin-top: 0.125rem;
+    font-size: 0.75rem;
+    line-height: 1.125rem;
     color: var(--error);
 }
 input[type="checkbox"]{
     flex: none;
     width: 1.125rem;
     height: 1.125rem;
-    accent-color: var(--accent);
+    accent-color: var(--btn);
     cursor: pointer;
 }
 .show-password-label,
@@ -235,19 +282,27 @@ input[type="checkbox"]{
     display: flex;
     align-items: center;
     gap: 0.625rem;
-    min-height: 2.75rem; /* a comfortable tap target */
+    min-height: 2rem;
     margin-bottom: 0;
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
     font-weight: 400;
     color: var(--muted);
     cursor: pointer;
 }
-.row{
-    margin-bottom: 0.5rem;
+.check-row .field{
+    margin-bottom: 0;
+}
+.check-row .error-message{
+    min-height: 0;
+    margin-top: 0;
 }
 .rules{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1rem;
+    margin-bottom: 0.25rem;
     list-style: none;
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
     color: var(--muted);
 }
 .rules li::before{
@@ -260,37 +315,53 @@ input[type="checkbox"]{
     content: "\2713  ";
 }
 
+/* Register: two columns of fields inside the wide card */
+@media (min-width: 40rem){
+    .field-row{
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0 1rem;
+    }
+    .check-row{
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 0 1.5rem;
+        align-items: start;
+    }
+}
+@media (min-width: 56rem){
+    .field{
+        margin-bottom: 0.5rem;
+    }
+}
+
 .sign-in-btn,
 .button-link{
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
-    min-height: 3rem;
+    min-height: 2.75rem;
     margin-top: 0.5rem;
-    background: var(--accent);
-    color: var(--on-accent);
-    border: 1px solid var(--accent);
+    background: var(--btn);
+    color: var(--on-btn);
+    border: 1px solid var(--btn);
     border-radius: 0.5rem;
     font: inherit;
     font-weight: 600;
     text-decoration: none;
     cursor: pointer;
-    transition: background-color 0.15s ease, transform 0.15s ease;
+    transition: background-color 0.15s ease;
 }
 .sign-in-btn:hover,
 .button-link:hover{
-    background: var(--accent-hover);
-    border-color: var(--accent-hover);
-}
-.sign-in-btn:active,
-.button-link:active{
-    transform: translateY(1px);
+    background: var(--btn-hover);
+    border-color: var(--btn-hover);
 }
 
 .sign-up-text{
-    margin-top: 1.5rem;
-    font-size: 0.9375rem;
+    margin-top: 0.75rem;
+    font-size: 0.875rem;
     color: var(--muted);
 }
 .sign-up-link{
@@ -299,24 +370,19 @@ input[type="checkbox"]{
     text-decoration: underline;
     text-underline-offset: 0.2em;
 }
-.footer-note{
-    margin-top: 2rem;
-    font-size: 0.8125rem;
-    color: var(--muted);
-}
 
 .success h2{
+    margin-bottom: 0.75rem;
     font-family: var(--font-display);
-    font-size: 1.875rem;
+    font-size: 1.625rem;
     font-weight: 600;
     line-height: 1.15;
-    margin-bottom: 0.75rem;
 }
 .success h2:focus{
     outline: none;
 }
 .success p{
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
 }
 
 /* ---------- Accessibility helpers ---------- */
