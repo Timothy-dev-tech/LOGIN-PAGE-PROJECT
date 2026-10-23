@@ -4,6 +4,7 @@ import { loadEnv } from './env.js';
 const valid = {
   MONGODB_URI: 'mongodb://127.0.0.1:27017/test',
   CLIENT_ORIGIN: 'http://localhost:5173',
+  JWT_ACCESS_SECRET: 'a'.repeat(40),
 };
 
 describe('loadEnv', () => {
@@ -13,6 +14,8 @@ describe('loadEnv', () => {
       port: 8080,
       mongoUri: valid.MONGODB_URI,
       clientOrigin: valid.CLIENT_ORIGIN,
+      jwtAccessSecret: valid.JWT_ACCESS_SECRET,
+      bcryptCost: 12,
     });
   });
 
@@ -48,6 +51,18 @@ describe('loadEnv', () => {
     expect(() => loadEnv({ ...valid, CLIENT_ORIGIN: 'http://localhost:5173/' })).toThrow(/CLIENT_ORIGIN/);
     expect(() => loadEnv({ ...valid, CLIENT_ORIGIN: 'http://localhost:5173/app' })).toThrow(/CLIENT_ORIGIN/);
     expect(() => loadEnv({ MONGODB_URI: valid.MONGODB_URI })).toThrow(/CLIENT_ORIGIN/);
+  });
+
+  it('rejects a missing or short JWT_ACCESS_SECRET', () => {
+    const { JWT_ACCESS_SECRET: _omit, ...withoutSecret } = valid;
+    expect(() => loadEnv(withoutSecret)).toThrow(/JWT_ACCESS_SECRET/);
+    expect(() => loadEnv({ ...valid, JWT_ACCESS_SECRET: 'too-short' })).toThrow(/JWT_ACCESS_SECRET/);
+  });
+
+  it('checks BCRYPT_COST', () => {
+    expect(loadEnv({ ...valid, BCRYPT_COST: '10' }).bcryptCost).toBe(10);
+    expect(() => loadEnv({ ...valid, BCRYPT_COST: '3' })).toThrow(/BCRYPT_COST/);
+    expect(() => loadEnv({ ...valid, BCRYPT_COST: 'x' })).toThrow(/BCRYPT_COST/);
   });
 
   it('reports every problem at once', () => {

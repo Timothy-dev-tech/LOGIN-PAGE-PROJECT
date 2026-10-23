@@ -5,13 +5,24 @@ import helmet from 'helmet';
 import type { Env } from './config/env.js';
 import { errorHandler } from './middleware/error-handler.js';
 import { notFound } from './middleware/not-found.js';
+import { createAuthRouter } from './routes/auth.routes.js';
+import type { LimitOptions } from './middleware/rate-limit.js';
 import { healthRouter } from './routes/health.js';
 
 /**
  * Builds the Express app without starting it or touching the database. Keeping this
  * separate from server.ts is what lets the tests call the API without opening a port.
  */
-export function createApp(env: Pick<Env, 'nodeEnv' | 'clientOrigin'>) {
+export interface AppOptions {
+  /** Failed logins allowed per IP per window. Tests pass a small number. */
+  loginLimit?: LimitOptions;
+  registerLimit?: LimitOptions;
+}
+
+export function createApp(
+  env: Pick<Env, 'nodeEnv' | 'clientOrigin' | 'jwtAccessSecret' | 'bcryptCost'>,
+  options: AppOptions = {},
+) {
   const app = express();
 
   // On Render/Vercel the app sits behind a proxy. Trusting one hop makes req.ip the real
@@ -27,6 +38,17 @@ export function createApp(env: Pick<Env, 'nodeEnv' | 'clientOrigin'>) {
   app.use(cookieParser());
 
   app.use('/api/health', healthRouter);
+  app.use(
+    '/api/auth',
+    createAuthRouter({
+      jwtAccessSecret: env.jwtAccessSecret,
+      bcryptCost: env.bcryptCost,
+      clientOrigin: env.clientOrigin,
+      secureCookies: env.nodeEnv === 'production',
+      loginLimit: options.loginLimit ?? { windowMs: 15 * 60 * 1000, max: 10 },
+      registerLimit: options.registerLimit ?? { windowMs: 60 * 60 * 1000, max: 20 },
+    }),
+  );
 
   // These two must come last.
   app.use(notFound);

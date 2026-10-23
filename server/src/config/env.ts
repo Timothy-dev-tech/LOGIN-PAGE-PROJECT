@@ -5,6 +5,8 @@ export interface Env {
   port: number;
   mongoUri: string;
   clientOrigin: string;
+  jwtAccessSecret: string;
+  bcryptCost: number;
 }
 
 const NODE_ENVS: readonly string[] = ['development', 'test', 'production'];
@@ -44,9 +46,21 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
     problems.push('CLIENT_ORIGIN is required and must be a URL such as http://localhost:5173');
   }
 
+  const jwtAccessSecret = source.JWT_ACCESS_SECRET ?? '';
+  if (jwtAccessSecret.length < 32) {
+    problems.push('JWT_ACCESS_SECRET is required and must be at least 32 characters long');
+  }
+
+  // 12 is a sensible default today. Tests use 4 so they run fast.
+  const costText = source.BCRYPT_COST ?? '12';
+  const bcryptCost = Number(costText);
+  if (!Number.isInteger(bcryptCost) || bcryptCost < 4 || bcryptCost > 15) {
+    problems.push(`BCRYPT_COST must be a whole number from 4 to 15 (got "${costText}")`);
+  }
+
   if (problems.length > 0) {
     throw new Error(`Invalid environment:\n - ${problems.join('\n - ')}`);
   }
 
-  return { nodeEnv: nodeEnv as NodeEnv, port, mongoUri, clientOrigin };
+  return { nodeEnv: nodeEnv as NodeEnv, port, mongoUri, clientOrigin, jwtAccessSecret, bcryptCost };
 }

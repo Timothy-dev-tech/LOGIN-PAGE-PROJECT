@@ -6,7 +6,7 @@ import { errorHandler } from './middleware/error-handler.js';
 import { HttpError } from './utils/http-error.js';
 
 const origin = 'http://localhost:5173';
-const app = createApp({ nodeEnv: 'test', clientOrigin: origin });
+const app = createApp({ nodeEnv: 'test', clientOrigin: origin, jwtAccessSecret: 'x'.repeat(40), bcryptCost: 4 });
 
 describe('health check', () => {
   it('answers 200 with status ok', async () => {
