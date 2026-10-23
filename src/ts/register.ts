@@ -1,7 +1,15 @@
+import { ApiError, register } from './api';
 import { byId } from './dom';
-import { applyResult, setupPasswordToggle, watchField } from './form-ui';
+import {
+  applyResult,
+  clearFormError,
+  setBusy,
+  setupPasswordToggle,
+  showError,
+  showFormError,
+  watchField,
+} from './form-ui';
 import { initThemeToggle } from './theme';
-initThemeToggle(byId('themeToggle', HTMLButtonElement));
 import {
   getPasswordRules,
   validateConfirmPassword,
@@ -27,8 +35,11 @@ const confirmPassword = byId('confirmPassword', HTMLInputElement);
 const confirmPasswordError = byId('confirmPasswordError', HTMLSpanElement);
 const terms = byId('terms', HTMLInputElement);
 const termsError = byId('termsError', HTMLSpanElement);
+const formError = byId('formError', HTMLParagraphElement);
+const submitButton = byId('submitButton', HTMLButtonElement);
 
 setupPasswordToggle(byId('passwordToggle', HTMLInputElement), [password, confirmPassword]);
+initThemeToggle(byId('themeToggle', HTMLButtonElement));
 
 const validateConfirm = () => validateConfirmPassword(password.value, confirmPassword.value);
 
@@ -72,8 +83,34 @@ function showSuccess(name: string): void {
   successTitle.focus();
 }
 
-form.addEventListener('submit', (event) => {
+// The server checks the same rules again (never trust the browser). If it disagrees, its messages
+// are shown under the matching fields. The keys are the names the API uses.
+const serverFields: Record<string, [HTMLInputElement, HTMLElement]> = {
+  name: [fullName, fullNameError],
+  email: [email, emailError],
+  password: [password, passwordError],
+  termsAccepted: [terms, termsError],
+};
+
+function showServerError(error: unknown): void {
+  if (!(error instanceof ApiError)) {
+    showFormError(formError, 'Something went wrong. Please try again.');
+    return;
+  }
+  let first: HTMLInputElement | null = null;
+  for (const [key, message] of Object.entries(error.fieldErrors)) {
+    const field = serverFields[key];
+    if (!field) continue;
+    showError(field[0], field[1], message);
+    first ??= field[0];
+  }
+  if (first) first.focus();
+  else showFormError(formError, error.message);
+}
+
+form.addEventListener('submit', async (event) => {
   event.preventDefault();
+  clearFormError(formError);
 
   // Check every field (no early exit) so all the errors show at once.
   const checks: Array<[HTMLInputElement, boolean]> = [
@@ -90,7 +127,19 @@ form.addEventListener('submit', (event) => {
     return;
   }
 
-  // TODO(step 6): call POST /api/auth/register first, and only show the panel
-  // when the server confirms the account exists. For now it lets us test the UI.
-  showSuccess(fullName.value);
+  setBusy(submitButton, true, 'Creating account\u2026');
+  try {
+    const user = await register({
+      name: fullName.value,
+      email: email.value,
+      password: password.value,
+      termsAccepted: terms.checked,
+    });
+    // Only now, when the server has confirmed the account exists, do we say so.
+    showSuccess(user.name);
+  } catch (error) {
+    showServerError(error);
+  } finally {
+    setBusy(submitButton, false, '');
+  }
 });

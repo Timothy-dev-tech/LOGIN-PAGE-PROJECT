@@ -49,55 +49,70 @@
 
       <main class="main">
         <div class="card">
-          <h1>Sign in</h1>
-          <form id="loginForm" method="post" novalidate>
-            <div class="field">
-              <label for="email">Email</label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autocomplete="email"
-                placeholder="Enter your email"
-                required
-                aria-describedby="emailError"
-              />
-              <span id="emailError" class="error-message" aria-live="polite"></span>
-            </div>
+          <div id="loginView">
+            <h1>Sign in</h1>
+            <form id="loginForm" method="post" novalidate>
+              <div class="field">
+                <label for="email">Email</label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autocomplete="email"
+                  placeholder="Enter your email"
+                  required
+                  aria-describedby="emailError"
+                />
+                <span id="emailError" class="error-message" aria-live="polite"></span>
+              </div>
 
-            <div class="field">
-              <label for="password">Password</label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autocomplete="current-password"
-                placeholder="Enter your password"
-                required
-                aria-describedby="passwordError"
-              />
-              <span id="passwordError" class="error-message" aria-live="polite"></span>
-            </div>
+              <div class="field">
+                <label for="password">Password</label>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autocomplete="current-password"
+                  placeholder="Enter your password"
+                  required
+                  aria-describedby="passwordError"
+                />
+                <span id="passwordError" class="error-message" aria-live="polite"></span>
+              </div>
 
-            <label class="show-password-label">
-              <input type="checkbox" class="password-checkbox" id="passwordToggle" />
-              Show password
-            </label>
-
-            <div class="row">
-              <label class="remember-me">
-                <input class="remember-me-checkbox" type="checkbox" name="remember" id="remember" />
-                Remember me
+              <label class="show-password-label">
+                <input type="checkbox" class="password-checkbox" id="passwordToggle" />
+                Show password
               </label>
-            </div>
 
-            <button type="submit" class="sign-in-btn">Sign in</button>
-          </form>
+              <div class="row">
+                <label class="remember-me">
+                  <input
+                    class="remember-me-checkbox"
+                    type="checkbox"
+                    name="remember"
+                    id="remember"
+                  />
+                  Remember me
+                </label>
+              </div>
 
-          <p class="sign-up-text">
-            Don't have an account?
-            <a class="sign-up-link" href="/register.html">Create one</a>
-          </p>
+              <p id="formError" class="form-error" role="alert" hidden></p>
+
+              <button type="submit" class="sign-in-btn" id="submitButton">Sign in</button>
+            </form>
+
+            <p class="sign-up-text">
+              Don't have an account?
+              <a class="sign-up-link" href="/register.html">Create one</a>
+            </p>
+          </div>
+
+          <section id="signedIn" class="success" aria-labelledby="signedInTitle" hidden>
+            <h2 id="signedInTitle" tabindex="-1">Signed in</h2>
+            <p>Welcome back, <span id="signedInName"></span>. You are signed in.</p>
+            <button type="button" class="sign-in-btn" id="signOutButton">Sign out</button>
+          </section>
         </div>
       </main>
 

@@ -50,3 +50,27 @@ export function setupPasswordToggle(checkbox: HTMLInputElement, inputs: HTMLInpu
     }
   });
 }
+
+// A message that belongs to the whole form (network trouble, too many attempts...), shown above the
+// button. role="alert" on the element makes screen readers read it out when it appears.
+export function showFormError(el: HTMLElement, message: string): void {
+  el.textContent = message;
+  el.hidden = false;
+}
+
+export function clearFormError(el: HTMLElement): void {
+  el.textContent = '';
+  el.hidden = true;
+}
+
+// Disables the submit button while a request is running, so a double click cannot send it twice.
+export function setBusy(button: HTMLButtonElement, busy: boolean, busyLabel: string): void {
+  if (busy) {
+    button.dataset.label = button.textContent ?? '';
+    button.textContent = busyLabel;
+  } else if (button.dataset.label) {
+    button.textContent = button.dataset.label;
+  }
+  button.disabled = busy;
+  button.setAttribute('aria-busy', String(busy));
+}
