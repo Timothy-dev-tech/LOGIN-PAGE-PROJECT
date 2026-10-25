@@ -1,11 +1,10 @@
-import { HttpError } from '../utils/http-error.js';
+import { asObject, check, failIfAny, text } from './helpers.js';
 import {
   normalizeEmail,
   normalizeName,
   validateEmail,
   validateName,
   validatePassword,
-  type ValidationResult,
 } from './validators.js';
 
 export interface RegisterInput {
@@ -18,41 +17,6 @@ export interface LoginInput {
   email: string;
   password: string;
   remember: boolean;
-}
-
-/** JSON can hold anything, so check the type before the rules. */
-function text(value: unknown): string | null {
-  return typeof value === 'string' ? value : null;
-}
-
-function check(
-  errors: Record<string, string>,
-  field: string,
-  value: unknown,
-  rule: (v: string) => ValidationResult,
-): string {
-  const str = text(value);
-  if (str === null) {
-    errors[field] = `${field} must be text`;
-    return '';
-  }
-  const result = rule(str);
-  if (!result.valid) errors[field] = result.message;
-  return str;
-}
-
-function failIfAny(errors: Record<string, string>): void {
-  if (Object.keys(errors).length > 0) {
-    throw new HttpError(400, 'validation_failed', 'Please fix the highlighted fields.', {
-      fieldErrors: errors,
-    });
-  }
-}
-
-function asObject(body: unknown): Record<string, unknown> {
-  return typeof body === 'object' && body !== null && !Array.isArray(body)
-    ? (body as Record<string, unknown>)
-    : {};
 }
 
 export function parseRegisterInput(body: unknown): RegisterInput {

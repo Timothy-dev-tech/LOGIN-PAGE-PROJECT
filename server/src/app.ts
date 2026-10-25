@@ -5,9 +5,11 @@ import helmet from 'helmet';
 import type { Env } from './config/env.js';
 import { errorHandler } from './middleware/error-handler.js';
 import { notFound } from './middleware/not-found.js';
+import { createAdminRouter } from './routes/admin.routes.js';
 import { createAuthRouter } from './routes/auth.routes.js';
 import type { LimitOptions } from './middleware/rate-limit.js';
 import { healthRouter } from './routes/health.js';
+import { createStudyLogRouter } from './routes/study-log.routes.js';
 
 /**
  * Builds the Express app without starting it or touching the database. Keeping this
@@ -49,6 +51,9 @@ export function createApp(
       registerLimit: options.registerLimit ?? { windowMs: 60 * 60 * 1000, max: 20 },
     }),
   );
+
+  app.use('/api/study-logs', createStudyLogRouter(env.jwtAccessSecret));
+  app.use('/api/admin', createAdminRouter(env.jwtAccessSecret));
 
   // These two must come last.
   app.use(notFound);

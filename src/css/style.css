@@ -4,7 +4,7 @@
     box-sizing: border-box;
 }
 
-/* ---------- Theme tokens ----------
+/*  Theme tokens 
    Brand colours are taken from the TimSol wall-sign photo: green #5F9877 and blue #4785A9
    (from the logo) and charcoal #434341 (from the lettering). The text-safe versions below
    are darker or lighter so they pass contrast checks. Light is the default; dark values
@@ -67,7 +67,7 @@ body{
     line-height: 1.4;
 }
 
-/* ---------- Background ----------
+/*  Background 
    The photo sits in a fixed layer behind everything. Small screens: a strip across the top.
    Wide screens: the whole wall on the left, fading into a matching colour on the right. */
 .backdrop{
@@ -84,7 +84,7 @@ body{
     mask-image: linear-gradient(to bottom, #000 90%, transparent);
 }
 
-/* ---------- Layout ---------- */
+/*  Layout  */
 .shell{
     position: relative;
     min-height: 100vh;
@@ -154,7 +154,7 @@ body{
     }
 }
 
-/* ---------- Terms page (a reading page: it is meant to scroll) ---------- */
+/*  Terms page (a reading page: it is meant to scroll)  */
 .card--doc{
     max-width: 42rem;
     margin: 0.5rem 0;
@@ -214,7 +214,7 @@ body{
     }
 }
 
-/* ---------- Theme toggle ---------- */
+/*  Theme toggle  */
 .theme-toggle{
     position: absolute;
     top: 0.5rem;
@@ -253,7 +253,7 @@ body{
     }
 }
 
-/* ---------- Forms ---------- */
+/*  Forms  */
 label{
     display: block;
     margin-bottom: 0.25rem;
@@ -388,7 +388,7 @@ input[type="checkbox"]{
     margin-bottom: 1rem;
 }
 
-/* ---------- Accessibility helpers ---------- */
+/*  Accessibility helpers  */
 :focus-visible{
     outline: 3px solid var(--focus);
     outline-offset: 2px;
