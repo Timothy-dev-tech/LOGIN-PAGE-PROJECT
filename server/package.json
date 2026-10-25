@@ -12,7 +12,9 @@
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "seed:admin": "tsx --env-file=.env src/scripts/seed-admin.ts"
+
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
