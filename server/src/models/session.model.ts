@@ -14,6 +14,9 @@ const sessionSchema = new Schema({
   // Set when this token has been swapped for a new one. Using a token that is already used
   // is the sign of theft (see auth.service.ts).
   usedAt: { type: Date, default: null },
+  // When this device first signed in. Carried through every rotation, so the sessions page
+  // can say "signed in 3 days ago" even though the token itself is minutes old.
+  familyStartedAt: { type: Date },
   persistent: { type: Boolean, required: true },
   userAgent: { type: String, default: '' },
   ip: { type: String, default: '' },
@@ -27,6 +30,7 @@ export interface SessionDoc {
   familyId: string;
   tokenHash: string;
   usedAt: Date | null;
+  familyStartedAt?: Date;
   persistent: boolean;
   userAgent: string;
   ip: string;

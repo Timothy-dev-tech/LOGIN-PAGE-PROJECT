@@ -6,6 +6,7 @@ import {
   TERMS_VERSION,
 } from '../config/auth.js';
 import { Session } from '../models/session.model.js';
+import { recordActivity } from './activity.service.js';
 import { toPublicUser, User, type PublicUser } from '../models/user.model.js';
 import type { LoginInput, RegisterInput } from '../validation/auth.js';
 import { HttpError } from '../utils/http-error.js';
@@ -30,12 +31,18 @@ export interface IssuedSession {
   user: PublicUser;
 }
 
+const NO_META: RequestMeta = { userAgent: '', ip: '' };
+
 const invalidCredentials = () =>
   new HttpError(401, 'invalid_credentials', 'Incorrect email or password.');
 const invalidRefresh = () =>
   new HttpError(401, 'invalid_refresh_token', 'Your session has ended. Please sign in again.');
 
-export async function registerUser(input: RegisterInput, config: AuthConfig): Promise<PublicUser> {
+export async function registerUser(
+  input: RegisterInput,
+  config: AuthConfig,
+  meta: RequestMeta = NO_META,
+): Promise<PublicUser> {
   const passwordHash = await hashPassword(input.password, config.bcryptCost);
   try {
     const user = await User.create({
@@ -45,6 +52,7 @@ export async function registerUser(input: RegisterInput, config: AuthConfig): Pr
       termsAcceptedAt: new Date(),
       termsVersion: TERMS_VERSION,
     });
+    await recordActivity(user.id, 'register', meta);
     return toPublicUser(user);
   } catch (err) {
     // 11000 is MongoDB's "duplicate key" code. Relying on the unique index, instead of
@@ -65,6 +73,7 @@ async function issueSession(
   persistent: boolean,
   meta: RequestMeta,
   config: AuthConfig,
+  startedAt: Date,
 ): Promise<IssuedSession> {
   const refreshToken = generateRefreshToken();
   const ttl = persistent ? PERSISTENT_SESSION_TTL_MS : SESSION_TTL_MS;
@@ -73,6 +82,7 @@ async function issueSession(
     familyId,
     tokenHash: hashToken(refreshToken),
     persistent,
+    familyStartedAt: startedAt,
     userAgent: meta.userAgent,
     ip: meta.ip,
     expiresAt: new Date(Date.now() + ttl),
@@ -95,9 +105,14 @@ export async function loginUser(
     await burnTime(input.password, config.bcryptCost);
     throw invalidCredentials();
   }
-  if (!(await verifyPassword(input.password, user.passwordHash))) throw invalidCredentials();
+  if (!(await verifyPassword(input.password, user.passwordHash))) {
+    await recordActivity(user.id, 'login_failed', meta);
+    throw invalidCredentials();
+  }
   // A new login starts a new family, so each device has its own session.
-  return issueSession(user, randomUUID(), input.remember, meta, config);
+  const issued = await issueSession(user, randomUUID(), input.remember, meta, config, new Date());
+  await recordActivity(user.id, 'login', meta);
+  return issued;
 }
 
 /**
@@ -126,6 +141,7 @@ export async function refreshSession(
     const known = await Session.findOne({ tokenHash });
     if (known?.usedAt && now.getTime() - known.usedAt.getTime() > REUSE_GRACE_MS) {
       await Session.deleteMany({ familyId: known.familyId });
+      await recordActivity(String(known.user), 'token_reuse_detected', meta);
     }
     throw invalidRefresh();
   }
@@ -135,14 +151,24 @@ export async function refreshSession(
     await Session.deleteMany({ familyId: claimed.familyId });
     throw invalidRefresh();
   }
-  return issueSession(user, claimed.familyId, claimed.persistent, meta, config);
+  return issueSession(
+    user,
+    claimed.familyId,
+    claimed.persistent,
+    meta,
+    config,
+    claimed.familyStartedAt ?? claimed.createdAt,
+  );
 }
 
 /** Ends the session this token belongs to. Safe to call with an unknown or missing token. */
-export async function endSession(rawToken: string | undefined): Promise<void> {
+export async function endSession(rawToken: string | undefined, meta: RequestMeta = NO_META): Promise<void> {
   if (!rawToken) return;
   const session = await Session.findOne({ tokenHash: hashToken(rawToken) });
-  if (session) await Session.deleteMany({ familyId: session.familyId });
+  if (session) {
+    await Session.deleteMany({ familyId: session.familyId });
+    await recordActivity(String(session.user), 'logout', meta);
+  }
 }
 
 export async function getCurrentUser(userId: string): Promise<PublicUser> {
