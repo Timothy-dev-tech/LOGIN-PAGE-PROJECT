@@ -128,3 +128,78 @@ describe('logout', () => {
     expect(calls[1]?.url).toBe('/api/auth/logout');
   });
 });
+
+describe('protected endpoints for the dashboard', () => {
+  const entry = { id: 'e1', topic: 'JWT', minutes: 30, studiedOn: '2026-10-20', notes: '', createdAt: 'a', updatedAt: 'b' };
+  const signIn = async () => {
+    replies.push({ body: { accessToken: 'tok', user } });
+    await api.login({ email: 'tim@x.com', password: 'Password123', remember: false });
+    calls.length = 0;
+  };
+
+  it('lists study-log entries with the page in the query string', async () => {
+    await signIn();
+    replies.push({ body: { items: [entry], total: 1, page: 2, limit: 5 } });
+    expect(await api.listStudyLogs(2, 5)).toEqual({ items: [entry], total: 1, page: 2, limit: 5 });
+    expect(calls[0]?.url).toBe('/api/study-logs?page=2&limit=5');
+    expect(headersOf(0).Authorization).toBe('Bearer tok');
+  });
+
+  it('creates with POST and a JSON body, and returns the entry', async () => {
+    await signIn();
+    replies.push({ status: 201, body: { entry } });
+    const input = { topic: 'JWT', minutes: 30, studiedOn: '2026-10-20', notes: '' };
+    expect(await api.createStudyLog(input)).toEqual(entry);
+    expect(calls[0]?.init.method).toBe('POST');
+    expect(JSON.parse(calls[0]?.init.body as string)).toEqual(input);
+  });
+
+  it('updates with PATCH on the entry url', async () => {
+    await signIn();
+    replies.push({ body: { entry: { ...entry, minutes: 90 } } });
+    expect((await api.updateStudyLog('e1', { minutes: 90 })).minutes).toBe(90);
+    expect(calls[0]?.url).toBe('/api/study-logs/e1');
+    expect(calls[0]?.init.method).toBe('PATCH');
+  });
+
+  it('deletes with DELETE and expects no body back', async () => {
+    await signIn();
+    replies.push({ status: 204 });
+    await expect(api.deleteStudyLog('e1')).resolves.toBeUndefined();
+    expect(calls[0]?.init.method).toBe('DELETE');
+  });
+
+  it('retries a POST after refreshing when the token had expired (the 401 means nothing ran)', async () => {
+    await signIn();
+    replies.push(
+      { status: 401, body: { error: { code: 'unauthorized', message: 'x' } } },
+      { body: { accessToken: 'fresh', user } },
+      { status: 201, body: { entry } },
+    );
+    await api.createStudyLog({ topic: 'JWT', minutes: 30, studiedOn: '2026-10-20', notes: '' });
+    expect(calls.map((c) => c.url)).toEqual(['/api/study-logs', '/api/auth/refresh', '/api/study-logs']);
+    expect(headersOf(2).Authorization).toBe('Bearer fresh');
+  });
+
+  it('lists devices, signs one out and signs out the others', async () => {
+    await signIn();
+    const session = { id: 's1', device: 'Chrome on Windows', ip: '1.2.3.4', startedAt: 'a', lastActiveAt: 'b', persistent: false, expiresAt: 'c', current: true };
+    replies.push({ body: { sessions: [session] } }, { status: 204 }, { body: { revoked: 3 } });
+    expect(await api.listSessions()).toEqual([session]);
+    await api.revokeSession('s1');
+    expect(await api.revokeOtherSessions()).toBe(3);
+    expect(calls.map((c) => `${c.init.method ?? 'GET'} ${c.url}`)).toEqual([
+      'GET /api/auth/sessions',
+      'DELETE /api/auth/sessions/s1',
+      'DELETE /api/auth/sessions/others',
+    ]);
+  });
+
+  it('reads activity and the admin user list', async () => {
+    await signIn();
+    replies.push({ body: { items: [], total: 0, page: 1, limit: 20 } }, { body: { items: [user], total: 1, page: 1, limit: 20 } });
+    await api.listActivity();
+    expect((await api.listUsers()).items).toEqual([user]);
+    expect(calls.map((c) => c.url)).toEqual(['/api/auth/activity?page=1&limit=20', '/api/admin/users?page=1&limit=20']);
+  });
+});

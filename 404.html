@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" type="image/png" href="/src/img/favicon.png" />
+    <title>Page not found</title>
+    <script>
+      // Runs before the page paints, so a saved theme never flashes the wrong colours.
+      // Keep the logic in step with resolveTheme() in src/ts/theme.ts.
+      (function () {
+        var theme = null;
+        try {
+          theme = localStorage.getItem("theme");
+        } catch (e) {}
+        if (theme !== "light" && theme !== "dark") {
+          theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        }
+        document.documentElement.setAttribute("data-theme", theme);
+      })();
+    </script>
+    <link rel="stylesheet" href="/src/css/style.css" />
+    <link rel="stylesheet" href="/src/css/dashboard.css" />
+  </head>
+  <body class="app-body">
+    <main class="lost">
+      <img src="/src/img/favicon.png" alt="" width="48" height="48" />
+      <h1>Page not found</h1>
+      <p>That address does not lead anywhere. It may have moved, or it was never here.</p>
+      <a class="btn" href="/index.html">Go to sign in</a>
+    </main>
+  </body>
+</html>

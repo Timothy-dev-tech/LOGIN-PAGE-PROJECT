@@ -14,6 +14,8 @@ export default defineConfig({
         login: 'index.html',
         register: 'register.html',
         terms: 'terms.html',
+        dashboard: 'dashboard.html',
+        notFound: '404.html',
       },
     },
   },

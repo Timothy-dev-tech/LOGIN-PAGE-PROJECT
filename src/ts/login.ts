@@ -1,4 +1,5 @@
-import { ApiError, login, logout } from './api';
+import { ApiError, login, refresh } from './api';
+import { forgetSession, hasSessionHint, rememberSession } from './auth-guard';
 import { byId } from './dom';
 import {
   applyResult,
@@ -13,7 +14,6 @@ import { initThemeToggle } from './theme';
 import { validateEmail, validateLoginPassword } from './validators';
 
 const form = byId('loginForm', HTMLFormElement);
-const loginView = byId('loginView', HTMLDivElement);
 const email = byId('email', HTMLInputElement);
 const emailError = byId('emailError', HTMLSpanElement);
 const password = byId('password', HTMLInputElement);
@@ -21,10 +21,6 @@ const passwordError = byId('passwordError', HTMLSpanElement);
 const remember = byId('remember', HTMLInputElement);
 const formError = byId('formError', HTMLParagraphElement);
 const submitButton = byId('submitButton', HTMLButtonElement);
-const signedIn = byId('signedIn', HTMLElement);
-const signedInTitle = byId('signedInTitle', HTMLHeadingElement);
-const signedInName = byId('signedInName', HTMLSpanElement);
-const signOutButton = byId('signOutButton', HTMLButtonElement);
 
 setupPasswordToggle(byId('passwordToggle', HTMLInputElement), [password]);
 initThemeToggle(byId('themeToggle', HTMLButtonElement));
@@ -32,22 +28,25 @@ initThemeToggle(byId('themeToggle', HTMLButtonElement));
 watchField(email, emailError, () => validateEmail(email.value));
 watchField(password, passwordError, () => validateLoginPassword(password.value));
 
-// TEMPORARY (until the dashboard exists in step 9): show a signed-in panel here instead of
-// redirecting to a page that is not built yet.
-function showSignedIn(name: string): void {
-  signedInName.textContent = name.trim().split(/\s+/)[0] ?? '';
-  loginView.hidden = true;
-  signedIn.hidden = false;
-  signedInTitle.focus();
+const DASHBOARD = '/dashboard.html';
+
+// Arrived here because the dashboard could not confirm a session (expired, or signed out elsewhere).
+if (new URLSearchParams(location.search).get('reason') === 'expired') {
+  showFormError(formError, 'Your session ended. Please sign in again.');
 }
 
-signOutButton.addEventListener('click', async () => {
-  await logout().catch(() => undefined); // the browser forgets the token even if the call fails
-  password.value = '';
-  signedIn.hidden = true;
-  loginView.hidden = false;
-  email.focus();
-});
+// Already signed in? Skip the form. The refresh cookie is httpOnly so the page cannot look for it;
+// the hint (see auth-guard.ts) just avoids asking the server when we know the answer is no.
+async function skipIfSignedIn(): Promise<void> {
+  if (!hasSessionHint()) return;
+  try {
+    await refresh();
+    location.replace(DASHBOARD);
+  } catch {
+    forgetSession(); // the cookie is gone or expired: show the form as normal
+  }
+}
+void skipIfSignedIn();
 
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
@@ -68,13 +67,15 @@ form.addEventListener('submit', async (event) => {
 
   setBusy(submitButton, true, 'Signing in\u2026');
   try {
-    const user = await login({
+    await login({
       email: email.value,
       password: password.value,
       remember: remember.checked,
     });
     password.value = '';
-    showSignedIn(user.name);
+    rememberSession();
+    // A new page load starts without the in-memory token; the dashboard gets a fresh one with the cookie.
+    location.assign(DASHBOARD);
   } catch (error) {
     if (error instanceof ApiError && error.code === 'invalid_credentials') {
       // One message for "no such email" and "wrong password", on purpose (see the API).
