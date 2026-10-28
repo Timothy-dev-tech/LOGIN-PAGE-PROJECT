@@ -9,6 +9,11 @@ export const ACTIVITY_TYPES = [
   'token_reuse_detected',
   'session_revoked',
   'other_sessions_revoked',
+  'two_factor_enabled',
+  'two_factor_disabled',
+  'two_factor_failed',
+  'recovery_code_used',
+  'recovery_codes_regenerated',
 ] as const;
 export type ActivityType = (typeof ACTIVITY_TYPES)[number];
 

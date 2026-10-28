@@ -7,6 +7,8 @@ export interface Env {
   clientOrigin: string;
   jwtAccessSecret: string;
   bcryptCost: number;
+  /** 32-byte key that encrypts 2FA secrets in the database. */
+  twoFactorKey: Buffer;
 }
 
 const NODE_ENVS: readonly string[] = ['development', 'test', 'production'];
@@ -58,9 +60,20 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
     problems.push(`BCRYPT_COST must be a whole number from 4 to 15 (got "${costText}")`);
   }
 
+  // Base64 of exactly 32 random bytes. Without it the server cannot store 2FA secrets safely,
+  // so it refuses to start rather than quietly storing them in plain text.
+  const keyText = source.TWO_FACTOR_KEY?.trim() ?? '';
+  const twoFactorKey = Buffer.from(keyText, 'base64');
+  if (keyText === '' || twoFactorKey.length !== 32) {
+    problems.push(
+      'TWO_FACTOR_KEY is required: base64 of 32 random bytes. Make one with: ' +
+        `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`,
+    );
+  }
+
   if (problems.length > 0) {
     throw new Error(`Invalid environment:\n - ${problems.join('\n - ')}`);
   }
 
-  return { nodeEnv: nodeEnv as NodeEnv, port, mongoUri, clientOrigin, jwtAccessSecret, bcryptCost };
+  return { nodeEnv: nodeEnv as NodeEnv, port, mongoUri, clientOrigin, jwtAccessSecret, bcryptCost, twoFactorKey };
 }

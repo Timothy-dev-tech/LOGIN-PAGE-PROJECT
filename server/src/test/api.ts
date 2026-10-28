@@ -5,13 +5,14 @@ import { User } from '../models/user.model.js';
 import { connectTestDb } from './db.js';
 
 export const secret = 'test-secret-'.repeat(4);
+export const twoFactorKey = Buffer.alloc(32, 9);
 export const password = 'Password123';
 
 /** An app with the rate limits turned way up so tests never trip them. */
 export function makeApp() {
   return createApp(
-    { nodeEnv: 'test', clientOrigin: 'http://localhost:5173', jwtAccessSecret: secret, bcryptCost: 4 },
-    { loginLimit: { windowMs: 60_000, max: 1000 }, registerLimit: { windowMs: 60_000, max: 1000 } },
+    { nodeEnv: 'test', clientOrigin: 'http://localhost:5173', jwtAccessSecret: secret, bcryptCost: 4, twoFactorKey },
+    { loginLimit: { windowMs: 60_000, max: 1000 }, registerLimit: { windowMs: 60_000, max: 1000 }, twoFactorLimit: { windowMs: 60_000, max: 1000 } },
   );
 }
 

@@ -5,6 +5,7 @@ const valid = {
   MONGODB_URI: 'mongodb://127.0.0.1:27017/test',
   CLIENT_ORIGIN: 'http://localhost:5173',
   JWT_ACCESS_SECRET: 'a'.repeat(40),
+  TWO_FACTOR_KEY: Buffer.alloc(32, 7).toString('base64'),
 };
 
 describe('loadEnv', () => {
@@ -16,6 +17,7 @@ describe('loadEnv', () => {
       clientOrigin: valid.CLIENT_ORIGIN,
       jwtAccessSecret: valid.JWT_ACCESS_SECRET,
       bcryptCost: 12,
+      twoFactorKey: Buffer.alloc(32, 7),
     });
   });
 
@@ -67,5 +69,12 @@ describe('loadEnv', () => {
 
   it('reports every problem at once', () => {
     expect(() => loadEnv({})).toThrow(/MONGODB_URI[\s\S]*CLIENT_ORIGIN/);
+  });
+
+  it('rejects a missing or wrong-sized TWO_FACTOR_KEY', () => {
+    const { TWO_FACTOR_KEY: _omit, ...without } = valid;
+    expect(() => loadEnv(without)).toThrow(/TWO_FACTOR_KEY/);
+    expect(() => loadEnv({ ...valid, TWO_FACTOR_KEY: Buffer.alloc(16).toString('base64') })).toThrow(/TWO_FACTOR_KEY/);
+    expect(() => loadEnv({ ...valid, TWO_FACTOR_KEY: 'not base64 at all!!' })).toThrow(/TWO_FACTOR_KEY/);
   });
 });

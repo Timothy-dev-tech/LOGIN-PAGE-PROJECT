@@ -19,10 +19,12 @@ export interface AppOptions {
   /** Failed logins allowed per IP per window. Tests pass a small number. */
   loginLimit?: LimitOptions;
   registerLimit?: LimitOptions;
+  /** Failed second-factor attempts (codes, passwords on 2FA routes) allowed per IP per window. */
+  twoFactorLimit?: LimitOptions;
 }
 
 export function createApp(
-  env: Pick<Env, 'nodeEnv' | 'clientOrigin' | 'jwtAccessSecret' | 'bcryptCost'>,
+  env: Pick<Env, 'nodeEnv' | 'clientOrigin' | 'jwtAccessSecret' | 'bcryptCost' | 'twoFactorKey'>,
   options: AppOptions = {},
 ) {
   const app = express();
@@ -45,10 +47,12 @@ export function createApp(
     createAuthRouter({
       jwtAccessSecret: env.jwtAccessSecret,
       bcryptCost: env.bcryptCost,
+      twoFactorKey: env.twoFactorKey,
       clientOrigin: env.clientOrigin,
       secureCookies: env.nodeEnv === 'production',
       loginLimit: options.loginLimit ?? { windowMs: 15 * 60 * 1000, max: 10 },
       registerLimit: options.registerLimit ?? { windowMs: 60 * 60 * 1000, max: 20 },
+      twoFactorLimit: options.twoFactorLimit ?? { windowMs: 15 * 60 * 1000, max: 10 },
     }),
   );
 

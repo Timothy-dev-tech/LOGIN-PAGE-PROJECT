@@ -6,16 +6,19 @@ import {
   TERMS_VERSION,
 } from '../config/auth.js';
 import { Session } from '../models/session.model.js';
+import { TwoFactor } from '../models/two-factor.model.js';
 import { recordActivity } from './activity.service.js';
 import { toPublicUser, User, type PublicUser } from '../models/user.model.js';
 import type { LoginInput, RegisterInput } from '../validation/auth.js';
 import { HttpError } from '../utils/http-error.js';
 import { burnTime, hashPassword, verifyPassword } from '../utils/password.js';
-import { generateRefreshToken, hashToken, signAccessToken } from '../utils/tokens.js';
+import { generateRefreshToken, hashToken, signAccessToken, signChallengeToken } from '../utils/tokens.js';
 
 export interface AuthConfig {
   jwtAccessSecret: string;
   bcryptCost: number;
+  /** Encrypts 2FA secrets at rest. */
+  twoFactorKey: Buffer;
 }
 
 /** What we remember about the device, for the "your sessions" page later. */
@@ -30,6 +33,11 @@ export interface IssuedSession {
   persistent: boolean;
   user: PublicUser;
 }
+
+/** What a password-correct login leads to: a session, or a request for the second factor. */
+export type LoginResult =
+  | { kind: 'session'; issued: IssuedSession }
+  | { kind: 'two_factor_required'; challengeToken: string };
 
 const NO_META: RequestMeta = { userAgent: '', ip: '' };
 
@@ -67,7 +75,7 @@ export async function registerUser(
 }
 
 /** Saves a new refresh token for a session (family) and signs an access token to go with it. */
-async function issueSession(
+export async function issueSession(
   user: { id: string; role: 'user' | 'admin' } & Parameters<typeof toPublicUser>[0],
   familyId: string,
   persistent: boolean,
@@ -99,7 +107,7 @@ export async function loginUser(
   input: LoginInput,
   meta: RequestMeta,
   config: AuthConfig,
-): Promise<IssuedSession> {
+): Promise<LoginResult> {
   const user = await User.findOne({ email: input.email }).select('+passwordHash');
   if (!user) {
     await burnTime(input.password, config.bcryptCost);
@@ -109,10 +117,19 @@ export async function loginUser(
     await recordActivity(user.id, 'login_failed', meta);
     throw invalidCredentials();
   }
+  // Password correct. If this account has 2FA switched on, do NOT start a session yet: hand
+  // back a short-lived challenge, and the session is only issued once the code is proven.
+  const twoFactor = await TwoFactor.findOne({ user: user.id, enabledAt: { $ne: null } });
+  if (twoFactor) {
+    return {
+      kind: 'two_factor_required',
+      challengeToken: signChallengeToken({ userId: user.id, remember: input.remember }, config.jwtAccessSecret),
+    };
+  }
   // A new login starts a new family, so each device has its own session.
   const issued = await issueSession(user, randomUUID(), input.remember, meta, config, new Date());
   await recordActivity(user.id, 'login', meta);
-  return issued;
+  return { kind: 'session', issued };
 }
 
 /**

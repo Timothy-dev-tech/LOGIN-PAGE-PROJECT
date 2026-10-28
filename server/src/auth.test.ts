@@ -10,7 +10,7 @@ import { clearTestDb, connectTestDb, disconnectTestDb } from './test/db.js';
 
 const origin = 'http://localhost:5173';
 const secret = 'test-secret-'.repeat(4);
-const env = { nodeEnv: 'test' as const, clientOrigin: origin, jwtAccessSecret: secret, bcryptCost: 4 };
+const env = { nodeEnv: 'test' as const, clientOrigin: origin, jwtAccessSecret: secret, bcryptCost: 4, twoFactorKey: Buffer.alloc(32, 1) };
 const app = createApp(env, {
   loginLimit: { windowMs: 60_000, max: 1000 },
   registerLimit: { windowMs: 60_000, max: 1000 },

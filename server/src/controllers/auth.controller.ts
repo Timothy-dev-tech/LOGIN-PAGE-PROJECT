@@ -14,18 +14,17 @@ import {
   type IssuedSession,
   type RequestMeta,
 } from '../services/auth.service.js';
+import { completeLogin } from '../services/two-factor.service.js';
 import { HttpError } from '../utils/http-error.js';
 import { parseLoginInput, parseRegisterInput } from '../validation/auth.js';
+import { parseVerifyInput } from '../validation/two-factor.js';
 
 export interface AuthControllerOptions extends AuthConfig {
   secureCookies: boolean;
 }
 
 function metaFrom(req: Request): RequestMeta {
-  return {
-    userAgent: (req.get('user-agent') ?? '').slice(0, 200),
-    ip: req.ip ?? '',
-  };
+  return { userAgent: (req.get('user-agent') ?? '').slice(0, 200), ip: req.ip ?? '' };
 }
 
 export function createAuthController(options: AuthControllerOptions) {
@@ -41,55 +40,47 @@ export function createAuthController(options: AuthControllerOptions) {
     path: REFRESH_COOKIE_PATH,
   };
 
-  function sendSession(
-    res: Response,
-    issued: IssuedSession,
-    status = 200,
-  ): void {
+  function sendSession(res: Response, issued: IssuedSession, status = 200): void {
     // No maxAge = a session cookie that disappears when the browser closes ("remember me" off).
     res.cookie(REFRESH_COOKIE_NAME, issued.refreshToken, {
       ...baseCookie,
       ...(issued.persistent ? { maxAge: PERSISTENT_SESSION_TTL_MS } : {}),
     });
-    res
-      .status(status)
-      .json({ accessToken: issued.accessToken, user: issued.user });
+    res.status(status).json({ accessToken: issued.accessToken, user: issued.user });
   }
 
   const register: RequestHandler = async (req, res) => {
-    const user = await registerUser(
-      parseRegisterInput(req.body),
-      options,
-      metaFrom(req),
-    );
+    const user = await registerUser(parseRegisterInput(req.body), options, metaFrom(req));
     res.status(201).json({ user });
   };
 
   const login: RequestHandler = async (req, res) => {
-    sendSession(
-      res,
-      await loginUser(parseLoginInput(req.body), metaFrom(req), options),
-    );
+    const result = await loginUser(parseLoginInput(req.body), metaFrom(req), options);
+    if (result.kind === 'two_factor_required') {
+      // Password was right but no session exists yet. 200, because nothing went wrong:
+      // the page just needs to show the second step.
+      res.json({ twoFactorRequired: true, challengeToken: result.challengeToken });
+      return;
+    }
+    sendSession(res, result.issued);
+  };
+
+  const verifyTwoFactor: RequestHandler = async (req, res) => {
+    const { challengeToken, ...factor } = parseVerifyInput(req.body);
+    sendSession(res, await completeLogin(challengeToken, factor, metaFrom(req), options));
   };
 
   const refresh: RequestHandler = async (req, res) => {
     const token: unknown = req.cookies?.[REFRESH_COOKIE_NAME];
     if (typeof token !== 'string' || token === '') {
-      throw new HttpError(
-        401,
-        'invalid_refresh_token',
-        'Your session has ended. Please sign in again.',
-      );
+      throw new HttpError(401, 'invalid_refresh_token', 'Your session has ended. Please sign in again.');
     }
     sendSession(res, await refreshSession(token, metaFrom(req), options));
   };
 
   const logout: RequestHandler = async (req, res) => {
     const token: unknown = req.cookies?.[REFRESH_COOKIE_NAME];
-    await endSession(
-      typeof token === 'string' ? token : undefined,
-      metaFrom(req),
-    );
+    await endSession(typeof token === 'string' ? token : undefined, metaFrom(req));
     res.clearCookie(REFRESH_COOKIE_NAME, baseCookie);
     res.status(204).end();
   };
@@ -99,5 +90,5 @@ export function createAuthController(options: AuthControllerOptions) {
     res.json({ user: await getCurrentUser(req.auth!.userId) });
   };
 
-  return { register, login, refresh, logout, me };
+  return { register, login, verifyTwoFactor, refresh, logout, me };
 }
