@@ -5,6 +5,7 @@ import { el } from './el';
 import { initThemeToggle } from './theme';
 import { renderActivity } from './views/activity';
 import { renderDevices } from './views/devices';
+import { renderSecurity } from './views/security';
 import { renderStudyLog } from './views/study-log';
 import { renderUsers } from './views/users';
 
@@ -20,6 +21,7 @@ const ROUTES: Record<string, Route> = {
   log: { title: 'Study log', render: renderStudyLog },
   devices: { title: 'Devices', render: renderDevices },
   activity: { title: 'Activity', render: renderActivity },
+  security: { title: 'Security', render: renderSecurity },
   users: { title: 'Users', adminOnly: true, render: renderUsers },
 };
 const DEFAULT_ROUTE = 'log';
@@ -44,8 +46,12 @@ function routeFromHash(user: PublicUser): string {
 async function show(name: string, focusHeading: boolean): Promise<void> {
   const route = ROUTES[name] ?? ROUTES[DEFAULT_ROUTE]!;
   for (const link of document.querySelectorAll<HTMLAnchorElement>('[data-route]')) {
-    if (link.dataset.route === name) link.setAttribute('aria-current', 'page');
-    else link.removeAttribute('aria-current');
+    if (link.dataset.route === name) {
+      link.setAttribute('aria-current', 'page');
+      link.scrollIntoView?.({ inline: 'nearest', block: 'nearest' }); // on a phone the tab strip scrolls sideways
+    } else {
+      link.removeAttribute('aria-current');
+    }
   }
   document.title = `${route.title} · TimSol`;
   // Each visit gets its own container, so a slow request from a page we already left can only

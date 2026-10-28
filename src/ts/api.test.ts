@@ -203,3 +203,86 @@ describe('protected endpoints for the dashboard', () => {
     expect(calls.map((c) => c.url)).toEqual(['/api/auth/activity?page=1&limit=20', '/api/admin/users?page=1&limit=20']);
   });
 });
+
+/** The access token lives in module memory, so tests start by signing it out. */
+async function startSignedOut() {
+  replies.push({ status: 204 });
+  await api.logout();
+  calls.length = 0;
+}
+async function signedInAs() {
+  await startSignedOut();
+  replies.push({ body: { accessToken: 'tok', user } });
+  await api.login({ email: 'tim@x.com', password: 'Password123', remember: false });
+  calls.length = 0;
+}
+
+describe('two-factor sign-in', () => {
+  beforeEach(startSignedOut);
+  const login = { email: 'tim@x.com', password: 'Password123', remember: false };
+
+  it('reports a challenge instead of a session, and stores no token', async () => {
+    replies.push({ body: { twoFactorRequired: true, challengeToken: 'challenge-1' } });
+    expect(await api.login(login)).toEqual({ kind: 'two_factor', challengeToken: 'challenge-1' });
+    expect(api.getAccessToken()).toBeNull();
+  });
+
+  it('a normal login still reports a session', async () => {
+    replies.push({ body: { accessToken: 't', user } });
+    expect(await api.login(login)).toEqual({ kind: 'session', user });
+    expect(api.getAccessToken()).toBe('t');
+  });
+
+  it('verify sends the challenge with a code and then holds the new token', async () => {
+    replies.push({ body: { accessToken: 'after-2fa', user } });
+    expect(await api.verifyTwoFactor('challenge-1', { code: '123456' })).toEqual(user);
+    expect(calls[0]?.url).toBe('/api/auth/2fa/verify');
+    expect(JSON.parse(calls[0]?.init.body as string)).toEqual({ challengeToken: 'challenge-1', code: '123456' });
+    expect(headersOf(0).Authorization).toBeUndefined(); // nobody is signed in yet
+    expect(api.getAccessToken()).toBe('after-2fa');
+  });
+
+  it('verify can send a recovery code, and surfaces a wrong code as an ApiError', async () => {
+    replies.push({ status: 401, body: { error: { code: 'invalid_two_factor_code', message: 'No.' } } });
+    const error = await api.verifyTwoFactor('c', { recoveryCode: 'abcdefghjk' }).catch((e) => e);
+    expect(error).toMatchObject({ status: 401, code: 'invalid_two_factor_code' });
+    expect(JSON.parse(calls[0]?.init.body as string)).toEqual({ challengeToken: 'c', recoveryCode: 'abcdefghjk' });
+    expect(calls).toHaveLength(1); // a 401 here must NOT trigger a token refresh
+    expect(api.getAccessToken()).toBeNull();
+  });
+});
+
+describe('two-factor settings', () => {
+  beforeEach(signedInAs);
+  it('calls each route with the right method and body', async () => {
+    replies.push(
+      { body: { enabled: false, pending: false, recoveryCodesRemaining: 0 } },
+      { body: { secret: 'ABCD', otpauthUri: 'otpauth://x', qrDataUrl: 'data:image/png;base64,AA' } },
+      { body: { recoveryCodes: ['aaaaa-bbbbb'] } },
+      { body: { recoveryCodes: ['ccccc-ddddd'] } },
+      { status: 204 },
+    );
+    expect((await api.twoFactorStatus()).enabled).toBe(false);
+    expect((await api.startTwoFactorSetup('pw')).secret).toBe('ABCD');
+    expect(await api.enableTwoFactor('123456')).toEqual(['aaaaa-bbbbb']);
+    expect(await api.regenerateRecoveryCodes('pw', { code: '123456' })).toEqual(['ccccc-ddddd']);
+    await api.disableTwoFactor('pw', { recoveryCode: 'abcdefghjk' });
+    expect(calls.map((c) => `${c.init.method ?? 'GET'} ${c.url}`)).toEqual([
+      'GET /api/auth/2fa',
+      'POST /api/auth/2fa/setup',
+      'POST /api/auth/2fa/enable',
+      'POST /api/auth/2fa/recovery-codes',
+      'POST /api/auth/2fa/disable',
+    ]);
+    expect(JSON.parse(calls[1]?.init.body as string)).toEqual({ password: 'pw' });
+    expect(JSON.parse(calls[3]?.init.body as string)).toEqual({ password: 'pw', code: '123456' });
+    expect(JSON.parse(calls[4]?.init.body as string)).toEqual({ password: 'pw', recoveryCode: 'abcdefghjk' });
+  });
+
+  it('a wrong password (403) is shown as an error, not mistaken for an expired session', async () => {
+    replies.push({ status: 403, body: { error: { code: 'incorrect_password', message: 'Wrong.' } } });
+    const error = await api.startTwoFactorSetup('bad').catch((e) => e);
+    expect(error).toMatchObject({ status: 403, code: 'incorrect_password' });
+    expect(calls).toHaveLength(1); // no refresh attempt
+  });
+});

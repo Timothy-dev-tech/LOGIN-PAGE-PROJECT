@@ -59,3 +59,13 @@ describe('describeActivity', () => {
     expect(describeActivity('password_changed' as never)).toEqual({ label: 'password changed', tone: 'normal' });
   });
 });
+
+describe('two-factor activity labels', () => {
+  it('has a label for every new type, and flags the ones worth noticing', () => {
+    expect(describeActivity('two_factor_enabled').label).toMatch(/turned on/);
+    expect(describeActivity('two_factor_disabled').tone).toBe('warn');
+    expect(describeActivity('two_factor_failed').tone).toBe('warn');
+    expect(describeActivity('recovery_code_used').tone).toBe('warn');
+    expect(describeActivity('recovery_codes_regenerated').label).toMatch(/recovery codes/);
+  });
+});

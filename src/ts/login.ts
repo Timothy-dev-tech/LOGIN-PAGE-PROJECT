@@ -1,4 +1,4 @@
-import { ApiError, login, refresh } from './api';
+import { ApiError, login, refresh, verifyTwoFactor } from './api';
 import { forgetSession, hasSessionHint, rememberSession } from './auth-guard';
 import { byId } from './dom';
 import {
@@ -11,6 +11,7 @@ import {
   watchField,
 } from './form-ui';
 import { initThemeToggle } from './theme';
+import { factorBody, validateFactor, type FactorMode } from './two-factor-validators';
 import { validateEmail, validateLoginPassword } from './validators';
 
 const form = byId('loginForm', HTMLFormElement);
@@ -67,12 +68,16 @@ form.addEventListener('submit', async (event) => {
 
   setBusy(submitButton, true, 'Signing in\u2026');
   try {
-    await login({
+    const outcome = await login({
       email: email.value,
       password: password.value,
       remember: remember.checked,
     });
     password.value = '';
+    if (outcome.kind === 'two_factor') {
+      showSecondStep(outcome.challengeToken);
+      return;
+    }
     rememberSession();
     // A new page load starts without the in-memory token; the dashboard gets a fresh one with the cookie.
     location.assign(DASHBOARD);
@@ -88,5 +93,99 @@ form.addEventListener('submit', async (event) => {
     }
   } finally {
     setBusy(submitButton, false, '');
+  }
+});
+
+// ---- Second step: two-factor code -----------------------------------------------------------
+const loginView = byId('loginView', HTMLDivElement);
+const twoFactorView = byId('twoFactorView', HTMLDivElement);
+const twoFactorForm = byId('twoFactorForm', HTMLFormElement);
+const codeInput = byId('twoFactorCode', HTMLInputElement);
+const codeError = byId('twoFactorCodeError', HTMLSpanElement);
+const codeLabel = byId('codeLabel', HTMLLabelElement);
+const twoFactorHelp = byId('twoFactorHelp', HTMLParagraphElement);
+const twoFactorFormError = byId('twoFactorFormError', HTMLParagraphElement);
+const twoFactorSubmit = byId('twoFactorSubmit', HTMLButtonElement);
+const modeSwitch = byId('modeSwitch', HTMLButtonElement);
+const backButton = byId('backToPassword', HTMLButtonElement);
+
+// The challenge proves the password step was passed. It lives only in this variable and expires
+// after 5 minutes on the server.
+let challengeToken: string | null = null;
+let mode: FactorMode = 'app';
+
+function setMode(next: FactorMode): void {
+  mode = next;
+  codeInput.value = '';
+  applyResult(codeInput, codeError, { valid: true });
+  clearFormError(twoFactorFormError);
+  if (mode === 'app') {
+    codeLabel.textContent = '6-digit code';
+    twoFactorHelp.textContent = 'Open your authenticator app and enter the 6-digit code.';
+    codeInput.setAttribute('inputmode', 'numeric');
+    codeInput.setAttribute('autocomplete', 'one-time-code');
+    codeInput.placeholder = '123456';
+    modeSwitch.textContent = 'Use a recovery code instead';
+  } else {
+    codeLabel.textContent = 'Recovery code';
+    twoFactorHelp.textContent = 'Enter one of the recovery codes you saved. Each one works once.';
+    codeInput.setAttribute('inputmode', 'text');
+    codeInput.setAttribute('autocomplete', 'off');
+    codeInput.placeholder = 'abcde-fghjk';
+    modeSwitch.textContent = 'Use the app code instead';
+  }
+  codeInput.focus();
+}
+
+function showSecondStep(token: string): void {
+  challengeToken = token;
+  loginView.hidden = true;
+  twoFactorView.hidden = false;
+  setMode('app');
+}
+
+function backToPasswordStep(message?: string): void {
+  challengeToken = null;
+  twoFactorView.hidden = true;
+  loginView.hidden = false;
+  if (message) showFormError(formError, message);
+  password.focus();
+}
+
+watchField(codeInput, codeError, () => validateFactor(codeInput.value, mode));
+modeSwitch.addEventListener('click', () => setMode(mode === 'app' ? 'recovery' : 'app'));
+backButton.addEventListener('click', () => backToPasswordStep());
+
+twoFactorForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  clearFormError(twoFactorFormError);
+  if (!challengeToken) return backToPasswordStep();
+  if (!applyResult(codeInput, codeError, validateFactor(codeInput.value, mode))) {
+    codeInput.focus();
+    return;
+  }
+
+  setBusy(twoFactorSubmit, true, 'Checking\u2026');
+  try {
+    await verifyTwoFactor(challengeToken, factorBody(codeInput.value, mode));
+    rememberSession();
+    location.assign(DASHBOARD);
+  } catch (error) {
+    if (error instanceof ApiError && error.code === 'invalid_challenge') {
+      backToPasswordStep('Your sign-in timed out. Please enter your password again.');
+    } else if (error instanceof ApiError && error.code === 'invalid_two_factor_code') {
+      showError(
+        codeInput,
+        codeError,
+        mode === 'app' ? 'That code is not right, or was already used. Wait for a new one.' : 'That recovery code is not right, or was already used.',
+      );
+      codeInput.select();
+    } else if (error instanceof ApiError) {
+      showFormError(twoFactorFormError, error.message); // for example: locked for 15 minutes
+    } else {
+      showFormError(twoFactorFormError, 'Something went wrong. Please try again.');
+    }
+  } finally {
+    setBusy(twoFactorSubmit, false, '');
   }
 });

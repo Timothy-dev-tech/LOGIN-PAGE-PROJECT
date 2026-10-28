@@ -61,6 +61,11 @@ const ACTIVITY: Record<ActivityType, { label: string; tone: Tone }> = {
   },
   session_revoked: { label: 'A device was signed out', tone: 'normal' },
   other_sessions_revoked: { label: 'All other devices were signed out', tone: 'normal' },
+  two_factor_enabled: { label: 'Two-factor authentication turned on', tone: 'normal' },
+  two_factor_disabled: { label: 'Two-factor authentication turned off', tone: 'warn' },
+  two_factor_failed: { label: 'Wrong two-factor code entered', tone: 'warn' },
+  recovery_code_used: { label: 'A recovery code was used to sign in', tone: 'warn' },
+  recovery_codes_regenerated: { label: 'New recovery codes were made', tone: 'normal' },
 };
 
 export function describeActivity(type: ActivityType): { label: string; tone: Tone } {

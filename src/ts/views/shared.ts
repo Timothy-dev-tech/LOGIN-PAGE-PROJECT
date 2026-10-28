@@ -34,6 +34,14 @@ export function messageBox(message: string, onRetry?: () => void): HTMLElement {
   );
 }
 
+/** A label, an input and an error line, wired together for screen readers. */
+export function field(label: string, id: string, input: HTMLInputElement): { box: HTMLElement; error: HTMLElement } {
+  const error = el('span', { id: `${id}Error`, class: 'error-message', 'aria-live': 'polite' });
+  input.id = id;
+  input.setAttribute('aria-describedby', `${id}Error`);
+  return { box: el('div', { class: 'field' }, el('label', { for: id }, label), input, error), error };
+}
+
 export function loadMoreButton(onClick: () => void): HTMLButtonElement {
   return el('button', { type: 'button', class: 'btn btn--quiet load-more', onclick: () => onClick() }, 'Load more');
 }

@@ -141,6 +141,12 @@
   text-decoration: none;
   white-space: nowrap;
 }
+@media (max-width: 30rem) {
+  .tabs a {
+    padding: 0 0.625rem;
+    font-size: 0.875rem;
+  }
+}
 .tabs a:hover {
   background: var(--surface);
 }
@@ -348,4 +354,76 @@
   .panel {
     padding: 1.25rem 1.5rem 1.5rem;
   }
+}
+
+
+/* ---- Security view ---- */
+.stack-form {
+  display: grid;
+  gap: 0.25rem;
+  max-width: 24rem;
+}
+.stack-form .form-actions,
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+.form-intro {
+  margin-bottom: 0.5rem;
+  color: var(--muted);
+  font-size: 0.9375rem;
+}
+.form-intro--warn {
+  color: var(--error);
+  font-weight: 600;
+}
+.setup-grid {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+.qr {
+  width: 11rem;
+  height: 11rem;
+  background: #fff; /* a QR code must stay dark-on-white in the dark theme too, or phones cannot read it */
+  border: 1px solid var(--card-border);
+  border-radius: 0.5rem;
+}
+.secret-key {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+  word-break: break-all;
+  background: var(--surface);
+  border: 1px solid var(--card-border);
+  border-radius: 0.375rem;
+}
+.codes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.375rem 1rem;
+  max-width: 24rem;
+  margin: 0.5rem 0 0.75rem;
+  padding: 0.625rem 0.875rem;
+  list-style: none;
+  background: var(--surface);
+  border: 1px solid var(--card-border);
+  border-radius: 0.5rem;
+}
+.codes code {
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+}
+.check-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+  font-size: 0.9375rem;
 }
