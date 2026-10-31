@@ -72,17 +72,8 @@ Generate secrets with `node -e "console.log(require('crypto').randomBytes(32).to
 
 ## Layout
 
-## Roadmap
--  Make it responsive
--  make it interactive
--  Wire up form validation
--  Connect to backend auth endpoint
--  Add dark/light theme toggle
-##Preview
-<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/60f20313-528d-48ef-b28a-69e204c9225e" />
+`index.html`, `register.html`, `dashboard.html` … and `src/` (frontend: `css/`, `ts/`, `ts/views/`); `server/src/` (`config`, `routes`, `controllers`, `services`, `models`, `middleware`, `validation`, `utils`); `docs/postman/`.
 
 ## Licence
 
-This project is open for learning and reference purposes.
-
-Powered by TimSol Technologies
+Add a licence of your choice (MIT is a common default).
