@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/Timothy-dev-tech/LOGIN-PAGE-PROJECT/actions/workflows/ci.yml/badge.svg)](https://github.com/Timothy-dev-tech/LOGIN-PAGE-PROJECT/actions/workflows/ci.yml)
 
-A full-stack authentication project by Timothy, [TimSol Technologies](https://timsol.dev): sign-up and sign-in with short-lived access tokens and rotating refresh cookies, optional two-factor authentication, device and activity pages, role-based access, and a small study-log dashboard for the login to protect. The point is the **security decisions**, written down below so each can be checked against the code.
+A full-stack authentication project by Timothy, sign-up and sign-in with short-lived access tokens and rotating refresh cookies, optional two-factor authentication, device and activity pages, role-based access, and a small study-log dashboard for the login to protect. The point is the **security decisions**, written down below so each can be checked against the code.
 
 ## Features
 
