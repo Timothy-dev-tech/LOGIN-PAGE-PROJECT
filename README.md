@@ -74,6 +74,3 @@ Generate secrets with `node -e "console.log(require('crypto').randomBytes(32).to
 
 `index.html`, `register.html`, `dashboard.html` … and `src/` (frontend: `css/`, `ts/`, `ts/views/`); `server/src/` (`config`, `routes`, `controllers`, `services`, `models`, `middleware`, `validation`, `utils`); `docs/postman/`.
 
-## Licence
-
-Add a licence of your choice (MIT is a common default).
