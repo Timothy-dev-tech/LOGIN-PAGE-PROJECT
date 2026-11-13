@@ -18,6 +18,7 @@ describe('loadEnv', () => {
       jwtAccessSecret: valid.JWT_ACCESS_SECRET,
       bcryptCost: 12,
       twoFactorKey: Buffer.alloc(32, 7),
+      trustProxyHops: 1,
     });
   });
 
@@ -76,5 +77,13 @@ describe('loadEnv', () => {
     expect(() => loadEnv(without)).toThrow(/TWO_FACTOR_KEY/);
     expect(() => loadEnv({ ...valid, TWO_FACTOR_KEY: Buffer.alloc(16).toString('base64') })).toThrow(/TWO_FACTOR_KEY/);
     expect(() => loadEnv({ ...valid, TWO_FACTOR_KEY: 'not base64 at all!!' })).toThrow(/TWO_FACTOR_KEY/);
+  });
+
+  it('reads TRUST_PROXY_HOPS, defaulting to 1, and rejects nonsense', () => {
+    expect(loadEnv({ ...valid, TRUST_PROXY_HOPS: '2' }).trustProxyHops).toBe(2);
+    expect(loadEnv(valid).trustProxyHops).toBe(1);
+    for (const bad of ['-1', '6', 'two', '1.5']) {
+      expect(() => loadEnv({ ...valid, TRUST_PROXY_HOPS: bad })).toThrow(/TRUST_PROXY_HOPS/);
+    }
   });
 });

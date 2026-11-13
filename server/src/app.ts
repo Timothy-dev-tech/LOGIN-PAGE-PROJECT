@@ -24,14 +24,18 @@ export interface AppOptions {
 }
 
 export function createApp(
-  env: Pick<Env, 'nodeEnv' | 'clientOrigin' | 'jwtAccessSecret' | 'bcryptCost' | 'twoFactorKey'>,
+  env: Pick<Env, 'nodeEnv' | 'clientOrigin' | 'jwtAccessSecret' | 'bcryptCost' | 'twoFactorKey'> &
+    Partial<Pick<Env, 'trustProxyHops'>>,
   options: AppOptions = {},
 ) {
   const app = express();
 
-  // On Render/Vercel the app sits behind a proxy. Trusting one hop makes req.ip the real
-  // client address, which the login rate limiter will need later.
-  if (env.nodeEnv === 'production') app.set('trust proxy', 1);
+  // In production the app sits behind proxies (Render, and Vercel's rewrite in front of it).
+  // Trusting exactly the right number of hops makes req.ip the real visitor's address, which
+  // the rate limiters and the Devices page rely on. Too few hops: every visitor shares the
+  // proxy's address and one person's failed logins lock everyone out. Too many: a visitor
+  // could fake their address with an X-Forwarded-For header.
+  if (env.nodeEnv === 'production') app.set('trust proxy', env.trustProxyHops ?? 1);
 
   // Order matters: security headers first, then CORS, then body parsing, then routes.
   app.use(helmet());
