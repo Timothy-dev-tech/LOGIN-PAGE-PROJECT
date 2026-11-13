@@ -1,15 +1,36 @@
-# Opens a pull request when a dependency has a security fix or a new version,
-# so CI checks it before you merge.
+# Opens pull requests for dependency updates; CI checks each one before you merge.
+# Minor and patch updates are grouped into ONE pull request per folder per week.
+# Major versions of a few sensitive packages are skipped until you choose to move.
 version: 2
 updates:
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: weekly
+    open-pull-requests-limit: 3
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: typescript
+        update-types: [version-update:semver-major]
+      - dependency-name: "@types/node"
+        update-types: [version-update:semver-major]
+
   - package-ecosystem: npm
     directory: /server
     schedule:
       interval: weekly
+    open-pull-requests-limit: 3
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: typescript
+        update-types: [version-update:semver-major]
+      - dependency-name: "@types/node"
+        update-types: [version-update:semver-major]
+
   - package-ecosystem: github-actions
     directory: /
     schedule:
