@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/Timothy-dev-tech/LOGIN-PAGE-PROJECT/actions/workflows/ci.yml/badge.svg)](https://github.com/Timothy-dev-tech/LOGIN-PAGE-PROJECT/actions/workflows/ci.yml)
 
-A full-stack authentication project by Timothy, [TimSol Technologies](https://timsol.dev): sign-up and sign-in with short-lived access tokens and rotating refresh cookies, optional two-factor authentication, device and activity pages, role-based access, and a small study-log dashboard for the login to protect. The point is the **security decisions**, written down below so each can be checked against the code.
+A full-stack authentication project by Timothy, sign-up and sign-in with short-lived access tokens and rotating refresh cookies, optional two-factor authentication, device and activity pages, role-based access, and a small study-log dashboard for the login to protect. The point is the **security decisions**, written down below so each can be checked against the code.
 
 ## Features
 
@@ -72,17 +72,5 @@ Generate secrets with `node -e "console.log(require('crypto').randomBytes(32).to
 
 ## Layout
 
-## Roadmap
--  Make it responsive
--  make it interactive
--  Wire up form validation
--  Connect to backend auth endpoint
--  Add dark/light theme toggle
-##Preview
-<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/60f20313-528d-48ef-b28a-69e204c9225e" />
+`index.html`, `register.html`, `dashboard.html` … and `src/` (frontend: `css/`, `ts/`, `ts/views/`); `server/src/` (`config`, `routes`, `controllers`, `services`, `models`, `middleware`, `validation`, `utils`); `docs/postman/`.
 
-## Licence
-
-This project is open for learning and reference purposes.
-
-Powered by TimSol Technologies
